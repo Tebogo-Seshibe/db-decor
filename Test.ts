@@ -1,4 +1,4 @@
-import MigrationGenerator from "util/MigrationGenerator"
+import MigrationGenerator from "./util/MigrationGenerator"
 import { DateColumn, ForeignKey, NumberColumn, PrimaryKey, StringColumn, Table } from "."
 import DatabaseState from "./DatabaseState"
 
@@ -105,32 +105,6 @@ export {
     Payments,
 }
 
-interface Migration
-{
-    up(gen: MigrationGenerator): void
-    down(gen: MigrationGenerator): void
-}
-
-class InitialMigration_20210127204017 implements Migration
-{
-    public up(gen: MigrationGenerator): void
-    {
-        // gen.createTable(
-        //     'members',
-        //     new Column('id').primaryKey(),
-        //     new Column('name').varchar(),
-        //     new Column('surname').varchar(8),
-        // )
-
-        // console.log(gen.finalQuery)
-    }
-
-    public down(gen: MigrationGenerator): void
-    {
-
-    }
-}
-
 for (const [key, value] of DatabaseState.tables)
 {
     console.log(`'${ key }'`, '=>', value)
@@ -139,5 +113,3 @@ for (const [key, value] of DatabaseState.columns)
 {
     console.log(`'${ key }'`, '=>', value)
 }
-
-// new InitialMigration_20210127204017().up(new MigrationGenerator())

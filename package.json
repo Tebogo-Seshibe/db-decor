@@ -1,20 +1,49 @@
 {
-  "name": "db-decor",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^14.14.22",
-    "@types/pg": "^7.14.9"
-  },
-  "dependencies": {
-    "dotenv": "^8.2.0",
-    "pg": "^8.5.1"
-  }
+    "name": "db-decor",
+    "version": "1.0.0",
+    "description": "Library containing decorators for database model and migrations",
+    "author": "Tebogo Christopher Seshibe",
+    "license": "ISC",
+    "main": ".",
+    "private": true,
+    "scripts": {
+        "test": "mocha ./**/*.test.ts",
+        "coverage": "nyc npm run test"
+    },
+    "mocha": {
+        "require": [
+            "ts-node/register"
+        ]
+    },
+    "nyc": {
+        "reporter": [
+            "html",
+            "text",
+            "text-summary"
+        ],
+        "require": [
+            "ts-node/register"
+        ],
+        "extension": [
+            ".ts"
+        ],
+        "include": [
+            "./src/**/*.test.ts"
+        ]
+    },
+    "devDependencies": {
+        "@types/node": "^14.14.22",
+        "@types/pg": "^7.14.9",
+        "@types/chai": "^4.2.14",
+        "@types/mocha": "^8.2.0",
+        "chai": "^4.2.0",
+        "mocha": "^8.2.1",
+        "nyc": "^15.1.0",
+        "ts-node": "^9.1.1",
+        "typescript": "^4.1.3"
+    },
+    "dependencies": {
+        "dotenv": "^8.2.0",
+        "pg": "^8.5.1"
+    }
 }
