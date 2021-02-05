@@ -45,7 +45,7 @@ jobs:
       - name: Add and Commit
         run: |
           git add .
-          git commit -m "v${{ github.event.inputs.changelog }}"
+          git commit -m "${{ github.event.inputs.changelog }}"
           git push origin release/v${{ github.event.inputs.versionName }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
