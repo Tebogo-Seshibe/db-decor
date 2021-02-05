@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    //"declaration": true,
+    //"declarationMap": true,
+    "rootDir": "./",
+    "outDir": "./lib",
+    "removeComments": true,
+    "downlevelIteration": true,
+    
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    //"noUnusedLocals": true,
+    //"noUnusedParameters": true,
+    //"noImplicitReturns": true,
+    //"noUncheckedIndexedAccess": true,
+
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": [
+      "node_module"
+  ]
+}
