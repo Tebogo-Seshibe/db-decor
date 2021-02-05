@@ -1,0 +1,66 @@
+name: Create Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Version'
+        required: true
+      changelog:
+        description: 'Change Log'
+        required: false
+        default: 'New version release'
+        
+jobs:
+  build:    
+    name: Create Release Branch and Tag
+    runs-on: ubuntu-latest    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Install dependencies
+        run: npm install
+      - name: Build Project
+        run: tsc
+      - name: Set Github Details
+        run: |
+          git config --global user.email "tseshibe@gmail.com"
+          git config --global user.name "Tebogo Christopher Seshibe"
+      - name: Create Release Branch
+        run: |
+          git checkout -b release/v${{ github.event.inputs.versionName }}
+          git tag v${{ github.event.inputs.versionName }}
+      - name: Reset .gitignore
+        run: |
+          rm .gitignore
+          echo node_modules >> .gitignore
+          echo *.ts >> .gitignore
+          echo package-lock.json >> .gitignore
+          echo tsconfig.json >> .gitignore
+          echo !*.d.ts >> .gitignore
+      - name: Add and Commit
+        run: |
+          git add .
+          git commit -m "v${{ github.event.inputs.changelog }}"
+          git push origin release/v${{ github.event.inputs.versionName }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    name: Create Release Candidate
+    runs-on: ubuntu-latest
+    needs: build
+    steps:          
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name:  ${{ github.event.inputs.versionName }}
+          release_name: v${{ github.event.inputs.versionName }}
+          draft: false
+          prerelease: false
