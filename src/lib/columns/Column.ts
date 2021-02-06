@@ -1,4 +1,4 @@
-import DatabaseState from "../DatabaseState"
+import DatabaseState from "../../DatabaseState"
 
 type ColumnType = 'number' | 'string' | 'date'
 type ColumnDecorator = (target: Object, key: string | symbol)  => void

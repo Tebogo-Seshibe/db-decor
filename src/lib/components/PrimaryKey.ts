@@ -1,5 +1,5 @@
 import { TableDetails } from "../components/Table"
-import DatabaseState from "../DatabaseState"
+import DatabaseState from "../../DatabaseState"
 
 const PrimaryKey = () => {
     return (target: Object, key: string | symbol) => {

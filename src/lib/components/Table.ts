@@ -1,5 +1,4 @@
-import { table } from "console"
-import DatabaseState from "../DatabaseState"
+import DatabaseState from "../../DatabaseState"
 
 interface TableDetails
 {

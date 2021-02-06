@@ -1,5 +1,5 @@
-import { ColumnDetails } from "./columns/Column"
-import { TableDetails } from "./components/Table"
+import { ColumnDetails } from "./lib/columns/Column"
+import { TableDetails } from "./lib/components/Table"
 
 const DatabaseState =
 {

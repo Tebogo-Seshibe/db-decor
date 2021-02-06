@@ -1,4 +1,4 @@
-import DatabaseState from "../DatabaseState"
+import DatabaseState from "../../DatabaseState"
 import { TableDetails } from "./Table"
 
 const ForeignKey = (referenceTable: string) => {

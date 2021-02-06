@@ -1,4 +1,3 @@
-import { type } from "os"
 import Column, { ColumnDecorator, ColumnProperties } from "./Column"
 
 interface StringColumnProperties extends ColumnProperties
