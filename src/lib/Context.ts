@@ -1,4 +1,6 @@
 import { Client } from "pg"
+import { QueryBuilder } from ".."
+import Entity from "./Entity"
 
 interface IContext
 {
@@ -19,6 +21,8 @@ class Context
     private migrationDirectory: string = ''
     private contextDirectory: string = ''
 
+    private _entities: Record<string, Entity<any>>
+
     constructor(connectionString: string)
     constructor(connectionDetails: IContext)
     constructor(arg: string | IContext)
@@ -35,12 +39,23 @@ class Context
         try
         {
             this._client = new Client(this._connectionString)
+            this._entities = {'name': new Entity() }
         }
         catch (e)
         {
             console.error(e)
             throw e
         }
+    }
+
+    protected entity<T extends Entity<any>>(name: string): T
+    {
+        return this._entities[`${ name }`] as T
+    }
+
+    public query<T>(): QueryBuilder<T>
+    {
+        return new QueryBuilder<T>()
     }
 
     public migrate(): void {

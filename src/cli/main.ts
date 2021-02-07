@@ -1,93 +1,89 @@
 import { Client } from 'pg'
 import dotenv from 'dotenv'
-import arg from 'arg'
+import inquirer from 'inquirer'
+import fs from 'fs'
+import add from './add'
+import { Arguments, Method, Settings } from './util'
+import migrate from './migrate'
+import update from './update'
+import remove from './remove'
+import init from './init'
 
 dotenv.config()
 
-type Method = 'add' | 'remove' | 'migrate' | 'test'
-interface Arguments
+async function handleArguments(method: string, ...parameters: string[]): Promise<Arguments>
 {
-    [key: string]: string | number | undefined
+    var rec: Record<string, any> = {'name': 'hello'}
+    
+    switch (method as Method)
+    {
+        case 'init':
+            return {
+                init: true
+            }
 
-    add?: string
-    update?: string | number
-    remove?: string | number
-    migrate?: string | number
-    project?: string
+        case 'add':
+            let addName: string | undefined
+            if (parameters.length === 0)
+            {
+                const answer = await inquirer.prompt(
+                    {
+                        type: 'input',
+                        name: 'addName',
+                        message: 'Please enter the name of the migration:',
+                    }
+                )
+
+                addName = answer.addName
+            }
+            else
+            {
+                addName = parameters[0]
+            }
+            return {
+                add: addName
+            }
+        
+            
+        case 'migrate':
+            break
+
+        case 'remove':
+            break
+        
+        default:
+            break
+    }
+
+    return {}
 }
 
-function handleArguments(raw: string[]): Arguments
+function parsePackageJSON(): Settings
 {
-    const args = arg({
-        '--add': String,
-        '-a': '--add',
+    let settings: Settings | undefined
 
-        '--update': String,
-        '-u': '--update',
+    try
+    {
+        const str = fs.readFileSync('package.jon', { encoding: 'utf-8' })
+        const json = JSON.parse(str)
         
-        '--update-index': Number,
-        '-ui': '--update-index',
-        
-        '--remove': String,
-        '-r': '--remove',
-        
-        '--remove-index': Number,
-        '-ri': '--remove-index',
-        
-        '--migrate': String,
-        '-m': '--migrate',
-        
-        '--migrate-index': Number,
-        '-mi': '--migrate-index',
-        
-        '--project': String,
-        '-p': '--project'
-    },{
-        argv: raw
-    })
-
-    return {
-        name: args._.join(','),
-        add: args['--add'] ?? undefined,
-        update: args['--update'] ?? args['--update-index'],
-        remove: args['--remove'] ?? args['--remove-index'],
-        migrate: args['--migrate'] ?? args['--migrate-index'],
-        project: args['--project']
+        settings = json['db-decor'] as Settings
+    }
+    finally
+    {
+        return {
+            projectName: settings?.projectName ?? '',
+            rootDir: settings?.rootDir ?? 'src/db',
+            migrationDir: settings?.migrationDir ?? 'migrations',
+            modelDir: settings?.modelDir ?? 'models'
+        }
     }
 }
 
-// const dbClient = new Client(
-// {
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASSWORD,
-//     host: process.env.DB_HOST,
-//     database: process.env.DB_NAME,
-//     port: Number(process.env.DB_PORT ?? '5432'),
-//     ssl: {
-//         rejectUnauthorized: false
-//     }
-// })
-
-function getTimestamp(): [Date, string]
-{
-    const today = new Date(Date.now())
-
-    return [
-        today,
-        [
-            today.getUTCFullYear(),
-            today.getUTCMonth(),
-            today.getUTCDate(),
-            today.getUTCHours(),
-            today.getUTCMinutes(),
-            today.getUTCSeconds()
-        ].join('')
-    ]
-}
 function validate(properties: Arguments)
 {
     const flagsAdded = Object.keys(properties).reduce((curr, key) => curr + (properties[key] === undefined ? 0 : 1), 0)
-    
+   
     if (flagsAdded === 0)
     {
         throw 'Invalid command provided. No method requested.'
@@ -95,32 +91,45 @@ function validate(properties: Arguments)
 
     if (flagsAdded > 1)
     {
-        throw 'Invalid command provided. Multiple methods requested.'
-    }
-    
+        throw 'Invalid command provided. Too many arguments provided.'
+    }    
 }
 
-async function main(method: Method, ...args: string[]): Promise<void>
+async function main(...args: string[]): Promise<void>
 {
-    let properties
     try
     {
-        properties = handleArguments(args)
-        validate(properties)
+        const [method, ...parameters] = args.slice(2)
+        const settings = parsePackageJSON()
+        const properties = await handleArguments(method, ...parameters)
 
-        console.log(properties)
+        validate(properties)
+        
+
+        if (properties.init)
+        {
+            init(settings)
+        }
+        else if (properties.add !== undefined)
+        {
+            add(settings, properties.add)
+        }
+        else if (properties.migrate !== undefined)
+        {
+            migrate(settings, properties.migrate)
+        }
+        else if (properties.update !== undefined)
+        {
+            update(settings, properties.update)
+        }
+        else if (properties.remove !== undefined)
+        {
+            remove(settings, properties.remove)
+        }
     }
     catch (e: any)
     {
-        if (e instanceof arg.ArgError)
-        {
-            console.log(e.message)
-        }
-        else
-        {
-            console.log(e)
-        }
-        console.log(properties)
+        console.log(e)
     }
 
     // if (!method)
