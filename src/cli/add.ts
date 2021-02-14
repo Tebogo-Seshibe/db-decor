@@ -1,23 +1,6 @@
-import { getTimestamp, Settings } from "./util"
-import path from 'path'
 import fs from 'fs'
-import DatabaseState from "../DatabaseState"
-import { TableDetails } from "../lib/components/Table"
-import { ColumnDetails } from "../lib/columns/Column"
-
-function main(settings: Settings, migrationName: string)
-{
-    const [date, timestamp] = getTimestamp()
-    const filename = `${timestamp}_${migrationName}.ts`
-    const migrationDir = path.resolve(settings.rootDir, settings.migrationDir)
-    
-    if (!fs.existsSync(migrationDir))
-    {
-        fs.mkdirSync(migrationDir, { recursive: true })
-    }    
-
-    fs.writeFileSync(path.resolve(migrationDir, filename), migration(migrationName), { encoding: 'utf-8' })
-}
+import path from 'path'
+import { getTimestamp, Settings } from "./util"
 
 function migration(className: string): string
 {
@@ -42,6 +25,7 @@ function migration(className: string): string
     query.push(`}`)
     query.push(``)
     query.push(`export default ${ className }`)
+    
     return query.join('\n')
 }
 
@@ -59,5 +43,16 @@ function down(): string
     return query.join('\n')
 }
 
+export default function main(settings: Settings, migrationName: string)
+{
+    const [date, timestamp] = getTimestamp()
+    const filename = `${timestamp}_${migrationName}.ts`
+    const migrationDir = path.resolve(settings.rootDir, settings.migrationDir)
+    
+    if (!fs.existsSync(migrationDir))
+    {
+        fs.mkdirSync(migrationDir, { recursive: true })
+    }    
 
-export default main
+    fs.writeFileSync(path.resolve(migrationDir, filename), migration(migrationName), { encoding: 'utf-8' })
+}

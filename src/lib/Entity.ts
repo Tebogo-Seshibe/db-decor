@@ -1,6 +1,6 @@
-import QueryBuilder from "./QueryBuilder"
+import { QueryBuilder } from "./QueryBuilder"
 
-class Entity<T>
+export class Entity<T>
 {
     // public async add(entity: T): Promise<T>
     // {
@@ -24,5 +24,3 @@ class Entity<T>
 
     // }
 }
-
-export default Entity

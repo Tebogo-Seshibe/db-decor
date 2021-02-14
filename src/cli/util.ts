@@ -1,4 +1,5 @@
 export type Method = 'init' | 'add' | 'remove' | 'migrate' | 'test'
+
 export interface Arguments
 {
     [key: string]: string | number | boolean | undefined

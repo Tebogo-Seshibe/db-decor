@@ -2,7 +2,25 @@ import fs from 'fs'
 import path from 'path'
 import { getTimestamp, Settings } from "./util"
 
-function main(settings: Settings)
+function createContext(className: string): string
+{
+    return [
+        `import { Context } from 'db-decor'`,
+        ``,
+        `class ${ className } extends Context`,
+        `{`,
+        `\tconstructor(connectionString: string)`,
+        `\t{`,
+        `\t\tsuper(connectionString)`,
+        `\t}`,
+        `}`,
+        ``,
+        `export default ${ className }`,
+        ``
+    ].join('\n')
+}
+
+export default function main(settings: Settings)
 {
     const [date, timestamp] = getTimestamp()
     const className = `DBContext`
@@ -23,23 +41,3 @@ function main(settings: Settings)
 
     fs.writeFileSync(path.resolve(rootDir, `${className}.ts`), createContext(className), { encoding: 'utf-8' })
 }
-
-function createContext(className: string): string
-{
-    return [
-        `import { Context } from 'db-decor'`,
-        ``,
-        `class ${ className } extends Context`,
-        `{`,
-        `\tconstructor(connectionString: string)`,
-        `\t{`,
-        `\t\tsuper(connectionString)`,
-        `\t}`,
-        `}`,
-        ``,
-        `export default ${ className }`,
-        ``
-    ].join('\n')
-}
-
-export default main

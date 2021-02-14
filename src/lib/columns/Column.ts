@@ -1,14 +1,14 @@
-import DatabaseState from "../../DatabaseState"
+import { DatabaseState } from "../../DatabaseState"
 
-type ColumnType = 'number' | 'string' | 'date'
-type ColumnDecorator = (target: Object, key: string | symbol)  => void
+export type ColumnType = 'number' | 'string' | 'date'
+export type ColumnDecorator = (target: Object, key: string | symbol)  => void
 
-interface ColumnProperties
+export interface ColumnProperties
 {
     nullable?: boolean
 }
 
-interface ColumnDetails
+export interface ColumnDetails
 {
     field: string
     columnName: string
@@ -16,9 +16,10 @@ interface ColumnDetails
     properties: ColumnProperties
 }
 
-function Column(columnType: ColumnType, properties: ColumnProperties, columnName?: string)
+export function Column(columnType: ColumnType, properties: ColumnProperties, columnName?: string)
 {
-    return (target: Object, key: string | symbol) => {
+    return function(target: Object, key: string | symbol)
+    {
         const table = target.constructor.name
         const columns = DatabaseState.columns.get(table) ?? []
         columnName = columnName ?? key as string
@@ -40,12 +41,4 @@ function Column(columnType: ColumnType, properties: ColumnProperties, columnName
         
         DatabaseState.columns.set(table, [...columns, details])
     }
-}
-
-export {
-    Column as default,
-    ColumnType,
-    ColumnDecorator,
-    ColumnProperties,
-    ColumnDetails
 }

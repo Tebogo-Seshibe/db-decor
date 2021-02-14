@@ -1,38 +1,64 @@
-import DatabaseState from "../../DatabaseState"
+import { DatabaseState } from "../../DatabaseState"
 
-interface TableDetails
+export type NameCasing = 'pascal' | 'camel' | 'snake' | 'kebab'
+
+export interface TableProperties
+{
+    textCasing?: NameCasing
+}
+
+export interface TableDetails
 {
     name?: string
     primaryKey?: string
     foreignKeys?: {
         field: string,
         table: string
-    }[]
+    }[],
+    textCasing?: NameCasing
 }
 
-function Table(name?: string)
+export function Table(): (constructor: Function) => void
+export function Table(name: string): (constructor: Function) => void
+export function Table(props: TableDetails): (constructor: Function) => void
+export function Table(name: string, props: TableDetails): (constructor: Function) => void
+export function Table(arg1?: string | TableDetails, arg2?: TableDetails): (constructor: Function) => void
 {
-    return (constructor: Function) => {
-        const tableName = name ?? constructor.name
-        let table: TableDetails | undefined = DatabaseState.tables.get(constructor.name)
+    console.log(DatabaseState)
+    return function(constructor: Function)
+    {
+        const className = constructor.name
+        const tableName = arg1 && typeof arg1 === 'string'
+            ? arg1 
+            : constructor.name
+        
+        let tableDetails: TableDetails | undefined = DatabaseState.tables.get(className)
 
-        if (table && table.name === tableName)
+        if (tableDetails && tableDetails.name === tableName)
         {
             throw `Table ${ tableName } already exists`
         }
 
-        if (!table)
-        {
-            table = { }
+        tableDetails = {
+            name: tableName,
+            textCasing: 'camel'
         }
 
-        table.name = tableName
+        if (arg1 && typeof arg1 !== 'string')
+        {
+            tableDetails = {
+                ...tableDetails,
+                ...arg1
+            }
+        }
+        else if (arg2)
+        {
+            tableDetails = {
+                ...tableDetails,
+                ...arg2
+            }
+        }
 
-        DatabaseState.tables.set(constructor.name, table)
+        DatabaseState.tables.set(constructor.name, tableDetails)
     }
-}
-
-export {
-    Table as default,
-    TableDetails
 }

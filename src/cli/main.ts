@@ -1,13 +1,8 @@
-import { Client } from 'pg'
 import dotenv from 'dotenv'
-import inquirer from 'inquirer'
 import fs from 'fs'
-import add from './add'
+import inquirer from 'inquirer'
+import { DatabaseState } from '../DatabaseState'
 import { Arguments, Method, Settings } from './util'
-import migrate from './migrate'
-import update from './update'
-import remove from './remove'
-import init from './init'
 
 dotenv.config()
 
@@ -58,7 +53,7 @@ async function handleArguments(method: string, ...parameters: string[]): Promise
     return {}
 }
 
-function parsePackageJSON(): Settings
+function loadSettings(): Settings
 {
     let settings: Settings | undefined
 
@@ -95,71 +90,40 @@ function validate(properties: Arguments)
     }    
 }
 
-async function main(...args: string[]): Promise<void>
+export async function main(...args: string[]): Promise<void>
 {
     try
     {
         const [method, ...parameters] = args.slice(2)
-        const settings = parsePackageJSON()
+        const settings = loadSettings()
         const properties = await handleArguments(method, ...parameters)
 
         validate(properties)
-        
+        console.log(DatabaseState)
 
-        if (properties.init)
-        {
-            init(settings)
-        }
-        else if (properties.add !== undefined)
-        {
-            add(settings, properties.add)
-        }
-        else if (properties.migrate !== undefined)
-        {
-            migrate(settings, properties.migrate)
-        }
-        else if (properties.update !== undefined)
-        {
-            update(settings, properties.update)
-        }
-        else if (properties.remove !== undefined)
-        {
-            remove(settings, properties.remove)
-        }
+        // if (properties.init)
+        // {
+        //     init(settings)
+        // }
+        // else if (properties.add !== undefined)
+        // {
+        //     add(settings, properties.add)
+        // }
+        // else if (properties.migrate !== undefined)
+        // {
+        //     migrate(settings, properties.migrate)
+        // }
+        // else if (properties.update !== undefined)
+        // {
+        //     update(settings, properties.update)
+        // }
+        // else if (properties.remove !== undefined)
+        // {
+        //     remove(settings, properties.remove)
+        // }
     }
     catch (e: any)
     {
-        console.log(e)
+        console.error(e)
     }
-
-    // if (!method)
-    // {
-    //     throw `Method required`
-    // }
-
-    // if (!args)
-    // {
-    //     throw `Arguments required`
-    // }
-    // switch (method)
-    // {
-    //     case 'add':
-    //         await addMigration(...args)
-    //         break
-
-    //     case 'remove':
-    //         await removeMigration(...args)
-    //         break
-
-    //     case 'migrate':
-    //         await migrate(...args)
-    //         break
-
-    //     default:
-    //         throw `Unrecognized method: ${ method }`
-    // }
-
-    // await dbClient.connect()
-    // await dbClient.end()
 }
-export { main }

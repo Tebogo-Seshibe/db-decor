@@ -3,7 +3,7 @@ import { Client } from "pg"
 export type Condition = '<' | '=' | '<>' | '>' | 'in' | 'not in' | 'like' 
 export type AggregateType = 'array' | 'json'
 
-class QueryBuilder<T>
+export class QueryBuilder<T>
 {
     private _client: Client = new Client
     private _query: string[] = []
@@ -17,10 +17,12 @@ class QueryBuilder<T>
     {
         return this
     }
-
-    public select<K extends keyof T>(...fields: K[]): QueryBuilder<T>
+    
+    public select<K extends keyof T>(field: K): QueryBuilder<Record<K, any>>
+    public select<K extends keyof T, Q extends string>(fields: Record<Q, K>): QueryBuilder<Record<Q, any>>
+    public select<K extends keyof T, Q extends string>(args: K | Record<Q, K>): QueryBuilder<Record<Q, any>>
     {
-        return this
+        return new QueryBuilder<Record<string, K>>()
     }
 
     public update(): QueryBuilder<T>
@@ -82,5 +84,3 @@ class QueryBuilder<T>
         return response.rows[0]
     }
 }
-
-export default QueryBuilder

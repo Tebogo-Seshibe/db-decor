@@ -1,22 +1,22 @@
-import Column, { ColumnDecorator, ColumnProperties } from "./Column"
+import { Column, ColumnDecorator, ColumnProperties } from "./Column"
 
-interface StringColumnProperties extends ColumnProperties
+export interface StringColumnProperties extends ColumnProperties
 {
     type?: 'char' | 'varchar' | 'text'
     length?: number
 }
 
-function StringColumn(): ColumnDecorator
-function StringColumn(name: string): ColumnDecorator
-function StringColumn(props: StringColumnProperties): ColumnDecorator
-function StringColumn(name: string, props?: StringColumnProperties): ColumnDecorator
-function StringColumn(arg1?: string | StringColumnProperties, arg2?: StringColumnProperties): ColumnDecorator
+export function StringColumn(): ColumnDecorator
+export function StringColumn(name: string): ColumnDecorator
+export function StringColumn(props: StringColumnProperties): ColumnDecorator
+export function StringColumn(name: string, props?: StringColumnProperties): ColumnDecorator
+export function StringColumn(arg1?: string | StringColumnProperties, arg2?: StringColumnProperties): ColumnDecorator
 {
     let columnName: string | undefined
     let properties: StringColumnProperties =
     {
         type: 'varchar',
-        length: 127,
+        length: 128,
     }
     
     if (typeof arg1 === 'string')
@@ -41,5 +41,3 @@ function StringColumn(arg1?: string | StringColumnProperties, arg2?: StringColum
 
     return Column('string', properties, columnName)
 }
-
-export default StringColumn

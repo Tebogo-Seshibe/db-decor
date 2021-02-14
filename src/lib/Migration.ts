@@ -1,10 +1,8 @@
-import MigrationBuilder from "./MigrationBuilder"
+import { MigrationBuilder } from "./MigrationBuilder"
 
-interface Migration
+export interface Migration
 {
     up(migrationBuilder: MigrationBuilder): void
     
     down(migrationBuilder: MigrationBuilder): void
 }
-
-export default Migration

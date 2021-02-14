@@ -1,4 +1,4 @@
-class MigrationBuilder
+export class MigrationBuilder
 {
     public createTable(): MigrationBuilder
     {
@@ -35,5 +35,3 @@ class MigrationBuilder
 
     }
 }
-
-export default MigrationBuilder

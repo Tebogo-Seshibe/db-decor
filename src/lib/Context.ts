@@ -1,8 +1,8 @@
 import { Client } from "pg"
 import { QueryBuilder } from ".."
-import Entity from "./Entity"
+import { Entity } from "./Entity"
 
-interface IContext
+export interface IContext
 {
     host: string
     db: string
@@ -12,7 +12,7 @@ interface IContext
     password: string
 }
 
-class Context
+export class Context
 {
     private _migrationId: number = -1
     private _connectionString: string = ''
@@ -20,8 +20,6 @@ class Context
 
     private migrationDirectory: string = ''
     private contextDirectory: string = ''
-
-    private _entities: Record<string, Entity<any>>
 
     constructor(connectionString: string)
     constructor(connectionDetails: IContext)
@@ -39,7 +37,6 @@ class Context
         try
         {
             this._client = new Client(this._connectionString)
-            this._entities = {'name': new Entity() }
         }
         catch (e)
         {
@@ -48,19 +45,16 @@ class Context
         }
     }
 
-    protected entity<T extends Entity<any>>(name: string): T
-    {
-        return this._entities[`${ name }`] as T
-    }
-
     public query<T>(): QueryBuilder<T>
     {
         return new QueryBuilder<T>()
     }
 
-    public migrate(): void {
+    public migrate(): void
+    public migrate(index: number): void
+    public migrate(name: string): void
+    public migrate(arg?: number | string): void
+    {
 
     }
 }
-
-export default Context

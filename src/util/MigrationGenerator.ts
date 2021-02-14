@@ -1,5 +1,4 @@
 import { Client } from "pg"
-import dotEnv from 'dotenv'
 
 export const Table = (tableName: string): TableBuilder => new TableBuilder(tableName)
 class TableBuilder

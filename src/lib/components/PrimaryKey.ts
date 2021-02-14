@@ -1,8 +1,11 @@
 import { TableDetails } from "../components/Table"
-import DatabaseState from "../../DatabaseState"
+import { DatabaseState } from "../../DatabaseState"
 
-const PrimaryKey = () => {
-    return (target: Object, key: string | symbol) => {
+export function PrimaryKey()
+{
+    console.log(DatabaseState)
+    return function(target: Object, key: string | symbol)
+    {
         const tableName = target.constructor.name
         let table: TableDetails | undefined = DatabaseState.tables.get(tableName)
 
@@ -16,5 +19,3 @@ const PrimaryKey = () => {
         DatabaseState.tables.set(target.constructor.name, table)
     }
 }
-
-export default PrimaryKey
