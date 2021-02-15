@@ -1,7 +1,8 @@
 import dotenv from 'dotenv'
 import fs from 'fs'
 import inquirer from 'inquirer'
-import { DatabaseState } from '../DatabaseState'
+import '../lib/util/DatabaseState'
+import init from './init'
 import { Arguments, Method, Settings } from './util'
 
 dotenv.config()
@@ -59,18 +60,33 @@ function loadSettings(): Settings
 
     try
     {
-        const str = fs.readFileSync('package.jon', { encoding: 'utf-8' })
+        const str = fs.readFileSync('package.json', { encoding: 'utf-8' })
         const json = JSON.parse(str)
         
         settings = json['db-decor'] as Settings
+
+        settings = {
+            ...settings,
+            build: {
+                ...settings?.build,
+                cmd: json['scripts'][settings?.build?.cmd]
+            }
+        }
+    }
+    catch(e)
+    {
+        console.log(e)
     }
     finally
     {
         return {
-            projectName: settings?.projectName ?? '',
-            rootDir: settings?.rootDir ?? 'src/db',
-            migrationDir: settings?.migrationDir ?? 'migrations',
-            modelDir: settings?.modelDir ?? 'models'
+            baseDir: settings?.baseDir ?? 'src/db',
+            migrations: settings?.migrations ?? 'migrations',
+            models: settings?.models ?? 'models',
+            build: {
+                cmd: settings?.build?.cmd ?? 'echo no build command provided',
+                dir: settings?.build?.dir ?? 'dist'
+            }
         }
     }
 }
@@ -99,12 +115,11 @@ export async function main(...args: string[]): Promise<void>
         const properties = await handleArguments(method, ...parameters)
 
         validate(properties)
-        console.log(DatabaseState)
 
-        // if (properties.init)
-        // {
-        //     init(settings)
-        // }
+        if (properties.init)
+        {
+            init(settings)
+        }
         // else if (properties.add !== undefined)
         // {
         //     add(settings, properties.add)

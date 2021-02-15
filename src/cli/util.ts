@@ -14,10 +14,13 @@ export interface Arguments
 
 export interface Settings
 {
-    projectName: string
-    rootDir: string
-    migrationDir: string
-    modelDir: string
+    baseDir: string
+    migrations: string
+    models: string
+    build: {
+        cmd: string
+        dir: string
+    }
 }
 
 export function getTimestamp(): [Date, string]

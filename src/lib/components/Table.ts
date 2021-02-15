@@ -1,4 +1,4 @@
-import { DatabaseState } from "../../DatabaseState"
+import "../util/DatabaseState"
 
 export type NameCasing = 'pascal' | 'camel' | 'snake' | 'kebab'
 
@@ -24,7 +24,6 @@ export function Table(props: TableDetails): (constructor: Function) => void
 export function Table(name: string, props: TableDetails): (constructor: Function) => void
 export function Table(arg1?: string | TableDetails, arg2?: TableDetails): (constructor: Function) => void
 {
-    console.log(DatabaseState)
     return function(constructor: Function)
     {
         const className = constructor.name

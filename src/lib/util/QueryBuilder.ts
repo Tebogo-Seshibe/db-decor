@@ -74,11 +74,11 @@ export class QueryBuilder<T>
         return this
     }
 
-    public async get(): Promise<T>
+    public async get(): Promise<QueryBuilder<Record<string, any>>>
     {
         const query = this._query.join(' ')
         this._client.connect()
-        const response = await this._client.query<T>(query)
+        const response = await this._client.query<QueryBuilder<Record<string, any>>>(query)
         this._client.end()
         
         return response.rows[0]

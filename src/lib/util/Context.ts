@@ -1,6 +1,5 @@
 import { Client } from "pg"
-import { QueryBuilder } from ".."
-import { Entity } from "./Entity"
+import { QueryBuilder } from "../.."
 
 export interface IContext
 {
@@ -16,32 +15,32 @@ export class Context
 {
     private _migrationId: number = -1
     private _connectionString: string = ''
-    private _client: Client
+    private _client?: Client
 
     private migrationDirectory: string = ''
     private contextDirectory: string = ''
 
+    constructor()
     constructor(connectionString: string)
     constructor(connectionDetails: IContext)
-    constructor(arg: string | IContext)
+    constructor(arg?: string | IContext)
     {
-        if (typeof arg === 'string')
-        {
-            this._connectionString = arg
-        }
-        else
-        {
-            this._connectionString = `postgresql://${arg.username}:${arg.password}@${arg.host}:${arg.port}/${arg.db}${arg.ssl ? '?sslmode=require' : ''}`
-        }
-
         try
         {
-            this._client = new Client(this._connectionString)
+            if (typeof arg === 'string')
+            {
+                this._connectionString = arg
+            }
+            else if(arg !== undefined)
+            {
+                this._connectionString = `postgresql://${arg.username}:${arg.password}@${arg.host}:${arg.port}/${arg.db}${arg.ssl ? '?sslmode=require' : ''}`
+            }
+            // this._client = new Client(this._connectionString)
         }
         catch (e)
         {
-            console.error(e)
-            throw e
+            // console.error(e)
+            // throw e
         }
     }
 

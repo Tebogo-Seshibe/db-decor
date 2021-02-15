@@ -47,7 +47,7 @@ export default function main(settings: Settings, migrationName: string)
 {
     const [date, timestamp] = getTimestamp()
     const filename = `${timestamp}_${migrationName}.ts`
-    const migrationDir = path.resolve(settings.rootDir, settings.migrationDir)
+    const migrationDir = path.resolve(settings.baseDir, settings.migrations)
     
     if (!fs.existsSync(migrationDir))
     {

@@ -1,9 +1,8 @@
 import { TableDetails } from "../components/Table"
-import { DatabaseState } from "../../DatabaseState"
+import "../util/DatabaseState"
 
 export function PrimaryKey()
 {
-    console.log(DatabaseState)
     return function(target: Object, key: string | symbol)
     {
         const tableName = target.constructor.name

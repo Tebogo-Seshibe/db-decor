@@ -1,9 +1,8 @@
-import { DatabaseState } from "../../DatabaseState"
+import "../util/DatabaseState"
 import { TableDetails } from "./Table"
 
 export function ForeignKey(referenceTable: string)
 {
-    console.log(DatabaseState)
     return (target: Object, key: string | symbol) => {
         const tableName = target.constructor.name
         let table: TableDetails | undefined = DatabaseState.tables.get(tableName)

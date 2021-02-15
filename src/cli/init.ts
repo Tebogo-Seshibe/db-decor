@@ -1,21 +1,15 @@
+import { exec } from 'child_process'
 import fs from 'fs'
 import path from 'path'
+import '../lib/util/DatabaseState'
 import { getTimestamp, Settings } from "./util"
 
 function createContext(className: string): string
 {
     return [
-        `import { Context } from 'db-decor'`,
+        `import { DatabaseState } from 'db-decor'`,
         ``,
-        `class ${ className } extends Context`,
-        `{`,
-        `\tconstructor(connectionString: string)`,
-        `\t{`,
-        `\t\tsuper(connectionString)`,
-        `\t}`,
-        `}`,
-        ``,
-        `export default ${ className }`,
+        `console.log(DatabaseState)`,
         ``
     ].join('\n')
 }
@@ -25,9 +19,9 @@ export default function main(settings: Settings)
     const [date, timestamp] = getTimestamp()
     const className = `DBContext`
 
-    const rootDir = path.resolve(settings.rootDir)
-    const migrationDir = path.resolve(settings.rootDir, settings.migrationDir)
-    const modelDir = path.resolve(settings.rootDir, settings.modelDir)
+    const rootDir = path.resolve(settings.baseDir)
+    const migrationDir = path.resolve(settings.baseDir, settings.migrations)
+    const modelDir = path.resolve(settings.baseDir, settings.models)
     
     if (!fs.existsSync(migrationDir))
     {
@@ -39,5 +33,14 @@ export default function main(settings: Settings)
         fs.mkdirSync(modelDir, { recursive: true })
     }
 
-    fs.writeFileSync(path.resolve(rootDir, `${className}.ts`), createContext(className), { encoding: 'utf-8' })
+    // fs.writeFileSync(path.resolve(rootDir, `${className}.ts`), createContext(className), { encoding: 'utf-8' })
+    
+    exec(settings.build.cmd, () => {        
+        const pah = path.resolve(settings.build.dir, settings.baseDir, className)
+        console.log(pah)
+
+        exec(`node ${pah}`, (ex, success, err) => {
+            console.log(DatabaseState)
+        })
+    })
 }

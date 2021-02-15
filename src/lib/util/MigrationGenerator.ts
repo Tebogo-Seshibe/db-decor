@@ -196,7 +196,5 @@ const table = Table('members')
     .with(Column('surname').varchar())
     .index('name')
     .build()
-
-console.log(table)
     
 export default MigrationGenerator

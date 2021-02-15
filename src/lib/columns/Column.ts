@@ -1,4 +1,4 @@
-import { DatabaseState } from "../../DatabaseState"
+import "../util/DatabaseState"
 
 export type ColumnType = 'number' | 'string' | 'date'
 export type ColumnDecorator = (target: Object, key: string | symbol)  => void
@@ -18,6 +18,7 @@ export interface ColumnDetails
 
 export function Column(columnType: ColumnType, properties: ColumnProperties, columnName?: string)
 {
+    console.log('Column')
     return function(target: Object, key: string | symbol)
     {
         const table = target.constructor.name
