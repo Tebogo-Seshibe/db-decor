@@ -1,22 +1,6 @@
-import "../util/DatabaseState"
+import { State, TableDetails } from "../util/DatabaseState"
 
-export type NameCasing = 'pascal' | 'camel' | 'snake' | 'kebab'
 
-export interface TableProperties
-{
-    textCasing?: NameCasing
-}
-
-export interface TableDetails
-{
-    name?: string
-    primaryKey?: string
-    foreignKeys?: {
-        field: string,
-        table: string
-    }[],
-    textCasing?: NameCasing
-}
 
 export function Table(): (constructor: Function) => void
 export function Table(name: string): (constructor: Function) => void
@@ -31,14 +15,13 @@ export function Table(arg1?: string | TableDetails, arg2?: TableDetails): (const
             ? arg1 
             : constructor.name
         
-        let tableDetails: TableDetails | undefined = DatabaseState.tables.get(className)
-
-        if (tableDetails && tableDetails.name === tableName)
+        let tableInfo = State[className] ?? { }
+        if (!tableInfo.table)
         {
-            throw `Table ${ tableName } already exists`
+            tableInfo.table = { }
         }
 
-        tableDetails = {
+        let tableDetails: TableDetails = {
             name: tableName,
             textCasing: 'camel'
         }
@@ -58,6 +41,7 @@ export function Table(arg1?: string | TableDetails, arg2?: TableDetails): (const
             }
         }
 
-        DatabaseState.tables.set(constructor.name, tableDetails)
+        tableInfo.table = tableDetails
+        State[className] = tableInfo
     }
 }

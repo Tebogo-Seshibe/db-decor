@@ -1,31 +1,12 @@
-import fs from 'fs'
 import path from 'path'
-import { getTimestamp, Settings } from "./util"
+import fs from 'fs'
+import { TableInfo } from '../lib'
+import { getTimestamp, Settings, stateFileName } from "./util"
 
 function migration(className: string): string
 {
     const query: string[] = []
 
-    // Get current state of db
-    query.push(`import { Migration, MigrationBuilder } from 'db-decor'`)
-    query.push(``)
-    query.push(`class ${ className } implements Migration`)
-    query.push(`{`)
-    query.push(`\tpublic up(migrationBuilder: MigrationBuilder): void`)
-    query.push(`\t{`)
-    query.push(`\t\tmigrationBuilder`)
-    query.push(`\t\t\t.createTable(`)
-    query.push(`\t\t\t{`)
-    query.push(`\t\t\t\tname: 'example'`)
-    query.push(`\t\t\t})`)
-    query.push(`\t\t\t.build()`)
-    query.push(`\t}`)
-    query.push(`\tpublic down(migrationBuilder: MigrationBuilder): void`)
-    query.push(`\t}`)
-    query.push(`}`)
-    query.push(``)
-    query.push(`export default ${ className }`)
-    
     return query.join('\n')
 }
 
@@ -43,16 +24,15 @@ function down(): string
     return query.join('\n')
 }
 
-export default function main(settings: Settings, migrationName: string)
+export function add(settings: Settings, state: Record<string, TableInfo>): void
+export function add(settings: Settings, state: Record<string, TableInfo>, migrationName: string): void
+export function add(settings: Settings, state: Record<string, TableInfo>, migrationIndex: number): void
+export function add(settings: Settings, state: Record<string, TableInfo>, migration?: string | number): void
 {
-    const [date, timestamp] = getTimestamp()
-    const filename = `${timestamp}_${migrationName}.ts`
-    const migrationDir = path.resolve(settings.baseDir, settings.migrations)
+    const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
+    const statePath = path.resolve(migrationsDir, stateFileName)
     
-    if (!fs.existsSync(migrationDir))
-    {
-        fs.mkdirSync(migrationDir, { recursive: true })
-    }    
-
-    fs.writeFileSync(path.resolve(migrationDir, filename), migration(migrationName), { encoding: 'utf-8' })
+    const [date, timestamp] = getTimestamp()    
+    
+    fs.writeFileSync(statePath, JSON.stringify(state), { encoding: 'utf-8' })
 }

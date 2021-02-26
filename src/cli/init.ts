@@ -1,8 +1,8 @@
 import { exec } from 'child_process'
-import fs from 'fs'
 import path from 'path'
+import fs from 'fs'
 import '../lib/util/DatabaseState'
-import { getTimestamp, Settings } from "./util"
+import { Settings } from "./util"
 
 function createContext(className: string): string
 {
@@ -14,33 +14,25 @@ function createContext(className: string): string
     ].join('\n')
 }
 
-export default function main(settings: Settings)
+function createFolders(): void
 {
-    const [date, timestamp] = getTimestamp()
+
+}
+
+export function init(settings: Settings, state: any)
+{
     const className = `DBContext`
 
-    const rootDir = path.resolve(settings.baseDir)
-    const migrationDir = path.resolve(settings.baseDir, settings.migrations)
-    const modelDir = path.resolve(settings.baseDir, settings.models)
+    const modelsDir = path.resolve(settings.baseDir, settings.models)
+    const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
     
-    if (!fs.existsSync(migrationDir))
+    if (!fs.existsSync(modelsDir))
     {
-        fs.mkdirSync(migrationDir, { recursive: true })
-    }
-    
-    if (!fs.existsSync(modelDir))
-    {
-        fs.mkdirSync(modelDir, { recursive: true })
+        fs.mkdirSync(modelsDir, { recursive: true })
     }
 
-    // fs.writeFileSync(path.resolve(rootDir, `${className}.ts`), createContext(className), { encoding: 'utf-8' })
-    
-    exec(settings.build.cmd, () => {        
-        const pah = path.resolve(settings.build.dir, settings.baseDir, className)
-        console.log(pah)
-
-        exec(`node ${pah}`, (ex, success, err) => {
-            console.log(DatabaseState)
-        })
-    })
+    if (!fs.existsSync(migrationsDir))
+    {
+        fs.mkdirSync(migrationsDir, { recursive: true })
+    }
 }

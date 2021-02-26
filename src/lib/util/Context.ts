@@ -1,5 +1,5 @@
 import { Client } from "pg"
-import { QueryBuilder } from "../.."
+import { QueryBuilder } from "./QueryBuilder"
 
 export interface IContext
 {

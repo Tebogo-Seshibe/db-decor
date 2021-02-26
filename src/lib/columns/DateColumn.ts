@@ -1,4 +1,5 @@
-import { Column, ColumnDecorator, ColumnProperties } from "./Column"
+import { ColumnDecorator, ColumnProperties } from "../util/DatabaseState"
+import { Column } from "./Column"
 
 export interface DateColumnProperties extends ColumnProperties
 {

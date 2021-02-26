@@ -1,20 +1,24 @@
-import { TableDetails } from "../components/Table"
-import "../util/DatabaseState"
+import { State, TableDetails } from "../util/DatabaseState"
 
 export function PrimaryKey()
 {
     return function(target: Object, key: string | symbol)
     {
-        const tableName = target.constructor.name
-        let table: TableDetails | undefined = DatabaseState.tables.get(tableName)
-
-        if (!table)
+        const className = target.constructor.name
+        const fieldName = key as string
+        
+        let tableInfo = State[className] ?? { }
+        if (!tableInfo.table)
         {
-            table =  { }
+            tableInfo.table = { }
         }
 
-        table.primaryKey = key as string
+        let tableDetails: TableDetails = {
+            ...tableInfo.table, 
+            primaryKey: fieldName
+        }
 
-        DatabaseState.tables.set(target.constructor.name, table)
+        tableInfo.table = tableDetails
+        State[className] = tableInfo
     }
 }

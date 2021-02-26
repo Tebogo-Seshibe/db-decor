@@ -1,18 +1,42 @@
-import { ColumnDetails } from "../columns/Column"
-import { TableDetails } from "../components/Table"
+export type NameCasing = 'pascal' | 'camel' | 'snake' | 'kebab'
 
-export type State =
+export interface TableProperties
 {
-    tables:  Map<string, TableDetails>,
-    columns: Map<string, ColumnDetails[]>
+    textCasing?: NameCasing
 }
-
-declare global
+export interface TableDetails
 {
-    export let DatabaseState: State
+    name?: string
+    primaryKey?: string
+    foreignKeys?: {
+        field: string,
+        table: string
+    }[],
+    textCasing?: NameCasing
 }
 
-DatabaseState = {
-    tables: DatabaseState?.tables ?? new Map<string, TableDetails>(),
-    columns: DatabaseState?.columns ??  new Map<string, ColumnDetails[]>(),
+export type ColumnType = 'number' | 'string' | 'date'
+export type ColumnDecorator = (target: Object, key: string | symbol)  => void
+
+export interface ColumnProperties
+{
+    nullable?: boolean
 }
+
+export interface ColumnDetails
+{
+    field: string
+    columnName: string
+    columnType: ColumnType
+    properties: ColumnProperties
+}
+
+export interface TableInfo
+{
+    table: TableDetails
+    columns: Record<string, ColumnDetails>
+}
+
+// export type State = 
+
+export const State: Record<string, TableInfo> = { }

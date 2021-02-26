@@ -2,6 +2,17 @@ import { Client } from "pg"
 
 export type Condition = '<' | '=' | '<>' | '>' | 'in' | 'not in' | 'like' 
 export type AggregateType = 'array' | 'json'
+export type OrderByType = 'asc' | 'desc'
+
+export type TableColumnSelector<T> = Record<string, keyof T>
+export type TableColumnResult<T> = {
+    [K in keyof TableColumnSelector<T>]: T
+}
+
+export type Hmm<T> = {
+    [K in keyof T]: () => K
+}
+
 
 export class QueryBuilder<T>
 {
@@ -18,11 +29,11 @@ export class QueryBuilder<T>
         return this
     }
     
-    public select<K extends keyof T>(field: K): QueryBuilder<Record<K, any>>
-    public select<K extends keyof T, Q extends string>(fields: Record<Q, K>): QueryBuilder<Record<Q, any>>
-    public select<K extends keyof T, Q extends string>(args: K | Record<Q, K>): QueryBuilder<Record<Q, any>>
+    public select<InKey extends keyof T>(field: InKey, ...more: InKey[]): QueryBuilder<Pick<T, InKey>>
+    public select<InKey extends keyof T, OutKey extends string>(fields:Record<OutKey, InKey>): QueryBuilder<Record<OutKey, Pick<T, InKey>>>
+    public select<InKey extends keyof T, OutKey extends string>(fields: InKey | Record<OutKey, InKey>, ...more: InKey[]): QueryBuilder<Pick<T, InKey> | Record<OutKey, Pick<T, InKey>>>
     {
-        return new QueryBuilder<Record<string, K>>()
+        return new QueryBuilder
     }
 
     public update(): QueryBuilder<T>
@@ -58,8 +69,21 @@ export class QueryBuilder<T>
     {
         return this
     }
+    
+    public orderByAsc<Key extends keyof T>(field: Key): QueryBuilder<T>
+    {
+        return new QueryBuilder
+    }
+    
+    public orderByDesc<Key extends keyof T>(field: Key): QueryBuilder<T>
+    {
+        return new QueryBuilder
+    }
 
     public orderBy<K extends keyof T>(field: K): QueryBuilder<T>
+    public orderBy<K extends keyof T>(field: K, direction: OrderByType): QueryBuilder<T>
+    public orderBy<K extends keyof T>(fields: Record<K, OrderByType>): QueryBuilder<T>
+    public orderBy<K extends keyof T>(arg1: K | Record<K, OrderByType>, arg2: OrderByType = 'asc'): QueryBuilder<T>
     {
         return this
     }
@@ -74,11 +98,11 @@ export class QueryBuilder<T>
         return this
     }
 
-    public async get(): Promise<QueryBuilder<Record<string, any>>>
+    public async get(): Promise<T>
     {
         const query = this._query.join(' ')
         this._client.connect()
-        const response = await this._client.query<QueryBuilder<Record<string, any>>>(query)
+        const response = await this._client.query<T>(query)
         this._client.end()
         
         return response.rows[0]

@@ -1,26 +1,31 @@
-import "../util/DatabaseState"
-import { TableDetails } from "./Table"
+import { Context } from "../util/Context"
+import { State } from "../util/DatabaseState"
 
 export function ForeignKey(referenceTable: string)
 {
-    return (target: Object, key: string | symbol) => {
-        const tableName = target.constructor.name
-        let table: TableDetails | undefined = DatabaseState.tables.get(tableName)
-
-        if (!table)
+    return (target: Object, key: string | symbol) =>
+    {
+        const className = target.constructor.name
+        const fieldName = key as string
+        
+        let tableInfo = State[className] ?? { }
+        if (!tableInfo.table)
         {
-            table =  { }
+            tableInfo.table = { }
         }
 
-        table.foreignKeys = [
-            ...table.foreignKeys ?? [],
-            {
-                field: key as string,
-                table: referenceTable
-            }
-        ]
+        let foreignKeys = tableInfo.table.foreignKeys ?? []
+        if (foreignKeys.findIndex(x => x.field === fieldName) !== -1)
+        {
+            throw `Duplicate foreign key found.\nClass: ${className}\nField: ${fieldName}\nReference Table: ${referenceTable}`
+        }
 
-        DatabaseState.tables.set(target.constructor.name, table)
+        foreignKeys.push({
+            field: fieldName,
+            table: referenceTable
+        })
+
+        tableInfo.table.foreignKeys = foreignKeys
+        State[className] = tableInfo
     }
-
 }
