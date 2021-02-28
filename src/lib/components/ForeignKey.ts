@@ -1,5 +1,4 @@
-import { Context } from "../util/Context"
-import { State } from "../util/DatabaseState"
+import { State } from '../util/DatabaseState'
 
 export function ForeignKey(referenceTable: string)
 {

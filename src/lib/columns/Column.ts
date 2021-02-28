@@ -1,4 +1,4 @@
-import { State, ColumnDetails, ColumnProperties, ColumnType } from "../util/DatabaseState"
+import { State, ColumnDetails, ColumnProperties, ColumnType } from '../util/DatabaseState'
 
 export function Column(columnType: ColumnType, properties: ColumnProperties, columnName?: string)
 {

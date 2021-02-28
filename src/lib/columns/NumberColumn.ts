@@ -1,5 +1,5 @@
-import { ColumnDecorator, ColumnProperties } from "../util/DatabaseState"
-import { Column } from "./Column"
+import { ColumnProperties } from '../util/DatabaseState'
+import { Column } from './Column'
 
 export interface NumberColumnProperties extends ColumnProperties
 {
@@ -22,13 +22,13 @@ export interface FloatingPointColumnProperties extends ColumnProperties
     decimal?: number
 }
 
-export function NumberColumn(): ColumnDecorator
-export function NumberColumn(name: string): ColumnDecorator
-export function NumberColumn(props: IntegerColumnProperties): ColumnDecorator
-export function NumberColumn(props: FloatingPointColumnProperties): ColumnDecorator
-export function NumberColumn(name: string, props?: IntegerColumnProperties): ColumnDecorator
-export function NumberColumn(name: string, props?: FloatingPointColumnProperties): ColumnDecorator
-export function NumberColumn(arg1?: string | IntegerColumnProperties | FloatingPointColumnProperties, arg2?: IntegerColumnProperties | FloatingPointColumnProperties): ColumnDecorator
+export function NumberColumn(): PropertyDecorator
+export function NumberColumn(name: string): PropertyDecorator
+export function NumberColumn(props: IntegerColumnProperties): PropertyDecorator
+export function NumberColumn(props: FloatingPointColumnProperties): PropertyDecorator
+export function NumberColumn(name: string, props?: IntegerColumnProperties): PropertyDecorator
+export function NumberColumn(name: string, props?: FloatingPointColumnProperties): PropertyDecorator
+export function NumberColumn(arg1?: string | IntegerColumnProperties | FloatingPointColumnProperties, arg2?: IntegerColumnProperties | FloatingPointColumnProperties): PropertyDecorator
 {
     let columnName: string | undefined
     let properties: NumberColumnProperties =

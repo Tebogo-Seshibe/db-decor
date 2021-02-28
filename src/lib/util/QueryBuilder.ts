@@ -13,7 +13,6 @@ export type Hmm<T> = {
     [K in keyof T]: () => K
 }
 
-
 export class QueryBuilder<T>
 {
     private _client: Client = new Client

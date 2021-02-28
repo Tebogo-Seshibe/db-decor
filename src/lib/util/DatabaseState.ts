@@ -16,7 +16,6 @@ export interface TableDetails
 }
 
 export type ColumnType = 'number' | 'string' | 'date'
-export type ColumnDecorator = (target: Object, key: string | symbol)  => void
 
 export interface ColumnProperties
 {
@@ -37,6 +36,6 @@ export interface TableInfo
     columns: Record<string, ColumnDetails>
 }
 
-// export type State = 
+export type DatabaseState = Record<string, TableInfo>
 
-export const State: Record<string, TableInfo> = { }
+export const State: DatabaseState = { }

@@ -1,16 +1,16 @@
-import { ColumnDecorator, ColumnProperties } from "../util/DatabaseState"
-import { Column } from "./Column"
+import { ColumnProperties } from '../util/DatabaseState'
+import { Column } from './Column'
 
 export interface DateColumnProperties extends ColumnProperties
 {
     format?: 'yyyy-mm-dd' | 'yyyy-dd-mm' | 'mm-dd-yyyy' | 'dd-mm-yyyy'
 }
 
-export function DateColumn(): ColumnDecorator
-export function DateColumn(name?: string): ColumnDecorator
-export function DateColumn(props?: DateColumnProperties): ColumnDecorator
-export function DateColumn(name: string, props: DateColumnProperties): ColumnDecorator
-export function DateColumn(arg1?: string | DateColumnProperties, arg2?: DateColumnProperties): ColumnDecorator
+export function DateColumn(): PropertyDecorator
+export function DateColumn(name?: string): PropertyDecorator
+export function DateColumn(props?: DateColumnProperties): PropertyDecorator
+export function DateColumn(name: string, props: DateColumnProperties): PropertyDecorator
+export function DateColumn(arg1?: string | DateColumnProperties, arg2?: DateColumnProperties): PropertyDecorator
 {
     let columnName: string | undefined
     let properties: DateColumnProperties =
