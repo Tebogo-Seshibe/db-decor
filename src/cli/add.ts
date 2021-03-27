@@ -1,7 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { DatabaseState, TableInfo } from '../lib'
+import { ColumnDetails, DatabaseState, TableDetails, TableInfo } from '../lib'
 import { getTimestamp, Settings } from "./util"
+import migrationTemplate from './addTemplate'
 
 function trim(strings: TemplateStringsArray, ...values: any[]): string
 {
@@ -11,10 +12,7 @@ function trim(strings: TemplateStringsArray, ...values: any[]): string
         output += s + (values[i] ?? '')
     })
 
-    return output
-        .split(/(?:\r\n|\n|\r)/)
-        .map(x => x.replace(/^\s+/gm, ''))
-        .join('\n')
+    return output.split(/(?:\r\n|\n|\r)/).map(x => x.trim()).join('\n')
 }
 
 function tab(strings: TemplateStringsArray, ...values: any[]): string
@@ -25,82 +23,70 @@ function tab(strings: TemplateStringsArray, ...values: any[]): string
         output += s + (values[i] ?? '')
     })
 
-    return output
-        .split(/(?:\r\n|\n|\r)/)
-        .map(x => x.replace(/^\s/g, '\t'))
-        .join('\n')
+    return output.split(/(?:\r\n|\n|\r)/).map(x => '\t' + x).join('\n')
 }
 
 function migration(className: string, state: DatabaseState): string
 {
-    return trim`import { Migration, MigrationBuilder } from 'db-decor'
-
-    export class ${ className } implements Migration
-    {` + 
-    up(state) + 
-    '\n'+
-    down(state) + 
-    trim`
-    }
-    `
+    return migrationTemplate
+        .replace('{ __migration-up__ }', up(state))
+        .replace('{ __migration-down__ }', down(state))
 }
 
 function up(state: DatabaseState): string
 {
-    const tables = Object.keys(state).map(key => state[key])
+    const tables = Object.keys(state)
+        .map(key => state[key])
+        .map(({ table, columns }: TableInfo)=> {
+            return '\t\tmigrationBuilder\n' + 
+                tableUp(table)+ 
+                '\n' +
+                Object.keys(columns)
+                    .map(key => columns[key])
+                    .map((column: ColumnDetails) => columnUp(column))
+                    .join('\n') +
+                '\n'
+        })
 
-    return `
-    public up(migrationBuilder: MigrationBuilder): void
-    {`+
-        tables.map(tableInfo => tableUp(tableInfo) + '\n' + columnUp(tableInfo).join('\n')).join('\n') +
-    `
-    
-        migrationBuilder
-            .build()
-    }`
+    return tables.join('\n')
 }
 
 function down(state: DatabaseState): string
 {
-    const tables = Object.keys(state).map(key => state[key])
+    const tables = Object.keys(state)
+        .map(key => state[key])
+        .map(({ table, columns }: TableInfo)=> {
+            return '\t\tmigrationBuilder\n' +
+                tableDown(table) +
+                '\n' +
+                Object.keys(columns)
+                    .map(key => columns[key])
+                    .map((column: ColumnDetails) => columnDown(column))
+                    .join('\n') +
+                    '\n'
+        })
 
-    return `
-    public down(migrationBuilder: MigrationBuilder): void
-    {`+
-        tables.map(tableInfo => tableDown(tableInfo)).join('\n') +
-    `   
-
-        migrationBuilder
-            .build()
-    }`
+    return tables.join('\n')
 }
 
-function tableUp(tableInfo: TableInfo): string
+function tableUp(table: TableDetails): string
 {
-    return `
-        migrationBuilder
-            .createTable('${ tableInfo.table.name }')`
+    return `\t\t\t.createTable('${ table.name }')`
 }
 
-function tableDown(tableInfo: TableInfo): string
+function tableDown(table: TableDetails): string
 {
-    return `
-        migrationBuilder
-            .dropTable('${ tableInfo.table.name }')`
+    return `\t\t\t.dropTable('${ table.name }')`
 }
 
-function columnUp(tableInfo: TableInfo): string[]
+function columnUp(column: ColumnDetails): string
 {
-    var columns = Object.keys(tableInfo.columns).map(key => tableInfo.columns[key])
-
-    return columns.map(x => `\t\t\t.addColumn('${ x.columnName }', '${ x.columnType }', ${ JSON.stringify(x.properties) })`)
+    return `\t\t\t.addColumn('${ column.columnName }', '${ column.columnType }', ${ JSON.stringify(column.properties) })`
 }
 
-function columnDown(tableInfo: TableInfo): string[]
+function columnDown(column: ColumnDetails): string
 {
-    var columns = Object.keys(tableInfo.columns).map(key => tableInfo.columns[key])
-
-    return columns.map(x => x.field)
+    return `\t\t\t.removeColumn('${ column.columnName }', '${ column.columnType }', ${ JSON.stringify(column.properties) })`
 }
 
 
