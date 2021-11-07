@@ -2,17 +2,19 @@ export type NameCasing = 'pascal' | 'camel' | 'snake' | 'kebab'
 
 export interface TableProperties
 {
-    textCasing?: NameCasing
-}
-export interface TableDetails
-{
     name?: string
+}
+export interface TableDetails extends TableProperties
+{
     primaryKey?: string
     foreignKeys?: {
         field: string,
         table: string
     }[],
-    textCasing?: NameCasing
+    indexes?: {
+        field: string,
+        name: string
+    }[]
 }
 
 export type ColumnType = 'number' | 'string' | 'date'

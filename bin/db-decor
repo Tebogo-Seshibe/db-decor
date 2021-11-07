@@ -1,21 +1,13 @@
 #!/usr/bin/env node
 
 const { program } = require('commander')
-const path = require('path')
 const { 
     init,
     add,
     remove,
     update,
     rollback,
-    loadSettings
 } = require('../dist/cli')
-
-const settings = loadSettings()
-const dbModelsPath = path.resolve(settings.buildDir, settings.models)
-require(dbModelsPath)
-
-const { State } = require('../dist/lib')
 
 program
     .version('0.0.1')
@@ -23,19 +15,19 @@ program
 program
     .command('init')
     .description('Initialize the projects with and create the structure')
-    .action(() => init(settings, State))
+    .action(() => init())
     
 program
     .command('add <migration-name>')
     .description('Creates a new migration', {
         name: 'The name of the migration'
     })
-    .action(name => add(settings, State, name))
+    .action(name => add(name))
 
 program
     .command('remove')
     .description('Removes all unused migrations')
-    .action(() => remove(settings, State))
+    .action(() => remove())
     
 program
     .command('update')
@@ -49,7 +41,7 @@ program
                 ? Number(index)
                 : void 0
                 
-        update(settings, State, migration)
+        update(migration)
     })
     
 program

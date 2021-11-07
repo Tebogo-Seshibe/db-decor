@@ -2,12 +2,12 @@ import { State, ColumnDetails, ColumnProperties, ColumnType } from '../util/Data
 
 export function Column(columnType: ColumnType, properties: ColumnProperties, columnName?: string)
 {
-    return function(target: Object, key: string | symbol)
+    return function (target: Object, key: string | symbol)
     {        
         const className = target.constructor.name
         const fieldName = key as string
         
-        let tableInfo = State[className] ?? { }
+        const tableInfo = State[className] ?? { }
         if (!tableInfo.columns)
         {
             tableInfo.columns = { }
@@ -15,10 +15,11 @@ export function Column(columnType: ColumnType, properties: ColumnProperties, col
 
         if (tableInfo.columns[fieldName])
         {
-            throw `Duplicate column found: ${fieldName}`            
+            throw `Duplicate column found\nClass name: ${className}\nField name: ${fieldName} `            
         }
 
-        let columnDetails: ColumnDetails = {
+        const columnDetails: ColumnDetails =
+        {
             field: fieldName,
             columnName: columnName ?? fieldName,
             columnType: columnType,
