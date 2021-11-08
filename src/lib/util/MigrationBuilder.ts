@@ -1,5 +1,6 @@
+import { ColumnProperties } from ".."
 import { DateColumnProperties } from "../columns/DateColumn"
-import { FloatingPointColumnProperties, IntegerColumnProperties } from "../columns/NumberColumn"
+import { FloatingPointColumnProperties, IntegerColumnProperties, NumberColumnProperties } from "../columns/NumberColumn"
 import { StringColumnProperties } from "../columns/StringColumn"
 
 type MigrationColumn = 
@@ -56,10 +57,10 @@ export class MigrationBuilder
         return this
     }
     
-    public addColumn(columnName: string, columnType: string, props: MigrationColumn): MigrationBuilder
+    public addColumn(columnName: string, props: MigrationColumn): MigrationBuilder
     {
         const columns = this._queries.get(this._currentTable) ?? []
-        const column = `\t${columnName} ${columnType}`
+        const column = `\t${columnName} ${(<NumberColumnProperties>props).type}`
 
         this._queries.set(this._currentTable, [...columns, column])
         return this

@@ -3,7 +3,7 @@ import { Column } from './Column'
 
 export interface StringColumnProperties extends ColumnProperties
 {
-    type?: 'char' | 'varchar' | 'text'
+    type: 'char' | 'varchar' | 'text'
     length?: number
 }
 

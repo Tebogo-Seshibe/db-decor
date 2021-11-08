@@ -7,8 +7,8 @@ export interface DateColumnProperties extends ColumnProperties
 }
 
 export function DateColumn(): PropertyDecorator
-export function DateColumn(name?: string): PropertyDecorator
-export function DateColumn(props?: DateColumnProperties): PropertyDecorator
+export function DateColumn(name: string): PropertyDecorator
+export function DateColumn(props: DateColumnProperties): PropertyDecorator
 export function DateColumn(name: string, props: DateColumnProperties): PropertyDecorator
 export function DateColumn(arg1?: string | DateColumnProperties, arg2?: DateColumnProperties): PropertyDecorator
 {

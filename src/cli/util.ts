@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { DatabaseState } from '../lib'
 
 export const stateFileName: string = 'Snapshot.json'
 export interface Settings
@@ -8,10 +9,24 @@ export interface Settings
     buildDir: string
     migrations: string
     models: string
-    buildCmd: string
 }
 
-export function loadSettings(): Settings
+export function setup(): [ Settings, DatabaseState ]
+{
+    const { buildDir, models } = loadSettings()
+    const dbModelsPath = path.resolve(buildDir, models)
+
+    if (fs.existsSync(dbModelsPath))
+    {
+        require(dbModelsPath)
+    }
+
+    const { State } = require('../lib')
+    return [ loadSettings(), State ]
+}
+    
+
+function loadSettings(): Settings
 {
     let settings: Settings | undefined
     
@@ -20,9 +35,9 @@ export function loadSettings(): Settings
         let str: string
         let json: any
         
-        if (fs.existsSync('db-decor.config.json'))
+        if (fs.existsSync('dbdecorconfig.json'))
         {
-            str = fs.readFileSync('db-decor.config.json', { encoding: 'utf-8' })
+            str = fs.readFileSync('dbdecorconfig.json', { encoding: 'utf-8' })
             settings = JSON.parse(str) as Settings
         }
         else
@@ -30,11 +45,6 @@ export function loadSettings(): Settings
             str = fs.readFileSync('package.json', { encoding: 'utf-8' })
             json = JSON.parse(str)
             settings = json['db-decor'] as Settings
-
-            settings = {
-                ...settings,
-                buildCmd: json['scripts'][settings?.buildCmd] ?? settings?.buildCmd
-            }
         }
     }
     catch (e)
@@ -42,17 +52,14 @@ export function loadSettings(): Settings
         console.log(e)
     }
 
-    settings = {
-        ...settings as Settings
+    return {
+        ...settings as Settings,
+        
+        buildDir: settings?.buildDir ?? './build/src',
+        baseDir: settings?.baseDir ?? './src/db',
+        migrations: settings?.migrations ?? 'migrations',
+        models: settings?.models ?? 'models'
     }
-    
-    settings.buildDir = path.resolve(settings?.buildDir ?? 'dist', settings?.baseDir ?? 'src/db')
-    settings.baseDir = path.resolve(settings?.baseDir ?? 'src/db')
-    settings.buildCmd = settings?.buildCmd ?? 'echo no build command provided'
-    settings.migrations = settings?.migrations ?? 'migrations'
-    settings.models = settings?.models ?? 'models'
-
-    return settings
 }
 
 export function getTimestamp(): [Date, string]
