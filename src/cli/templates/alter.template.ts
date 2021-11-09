@@ -1,6 +1,6 @@
 export default `import { Migration, MigrationBuilder } from 'db-decor'
 
-export class Init implements Migration
+export class {{ migrationName }}_{{ migrationTimestamp }} implements Migration
 {
     public up(migrationBuilder: MigrationBuilder): void
     {    

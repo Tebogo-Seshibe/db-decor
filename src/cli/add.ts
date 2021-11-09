@@ -30,6 +30,8 @@ export async function add(migrationName: string): Promise<void>
 
     fs.writeFileSync(stampedMigrationName, mustache.render(createTemplate,
     {
+        migrationName: migrationName,
+        migrationTimestamp: timestamp,
         up:
         {
             table: migrationName,
