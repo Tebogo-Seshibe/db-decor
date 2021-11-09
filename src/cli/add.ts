@@ -2,18 +2,36 @@ import mustache from 'mustache'
 import path from 'path'
 import fs from 'fs'
 import { DatabaseState } from '../lib'
-import migrationTemplate from './templates/add.template'
-import { getTimestamp, Settings } from "./util"
-import { setup } from '.'
+import createTemplate from './templates/create.template'
+import alterTemplate from './templates/alter.template'
+import dropTemplate from './templates/drop.template'
+import { getTimestamp, Settings, setup } from "./util"
 
-export function add(migrationName: string): void
+enum MigrationType { CREATE, ALTER, DROP }
+
+export async function add(migrationName: string): Promise<void>
 {
-    const [settings, state] = setup()
+    const [settings, state] = await setup()
     const [date, timestamp] = getTimestamp()
     const stampedMigrationName = path.resolve(settings.baseDir, settings.migrations, `${timestamp}_${migrationName}.ts`)
 
-    fs.writeFileSync(stampedMigrationName, mustache.render(migrationTemplate,
+    // Get current snapshot
+    switch (determineMethod())
     {
+        case MigrationType.CREATE:
+            break
+
+        case MigrationType.ALTER:
+            break
+
+        case MigrationType.DROP:
+            break
+    }
+
+    fs.writeFileSync(stampedMigrationName, mustache.render(createTemplate,
+    {
+        migrationName: migrationName,
+        migrationTimestamp: timestamp,
         up:
         {
             table: migrationName,
@@ -28,5 +46,10 @@ export function add(migrationName: string): void
         down: 'world'
 
     }, { encoding: 'utf-8' }))
-    // console.log(a)
+    console.log(state)
+}
+
+function determineMethod(): MigrationType
+{
+    return MigrationType.CREATE
 }

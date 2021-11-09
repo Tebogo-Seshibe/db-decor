@@ -13,8 +13,9 @@ export interface Settings
 
 export function setup(): [ Settings, DatabaseState ]
 {
-    const { baseDir, buildDir, models } = loadSettings()
+    const { buildDir, models } = loadSettings()
     const dbModelsPath = path.resolve(buildDir, models)
+
     if (fs.existsSync(dbModelsPath))
     {
         require(dbModelsPath)
