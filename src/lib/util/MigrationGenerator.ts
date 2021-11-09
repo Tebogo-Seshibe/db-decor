@@ -1,35 +1,43 @@
 import { Client } from "pg"
 
 export const Table = (tableName: string): TableBuilder => new TableBuilder(tableName)
-class TableBuilder
+export class TableBuilder
 {
+    private _schemaName: string
     private _tableName: string
     private _columns: string[]
     private _indexes: string[]
 
-    constructor(tableName: string)
+    constructor(tableName: string, schemaName: string = 'default')
     {
+        this._schemaName = schemaName
         this._tableName = tableName
         this._columns = []
         this._indexes = []
     }
 
-    public with = (column: ColumnBuilder): TableBuilder =>
+    public schema = (schemaName: string): TableBuilder =>
     {
-        this._columns.push(column.build())
+        this._schemaName = schemaName
         return this
     }
 
-    public index = (columnName: string): TableBuilder =>
+    public columns = (...columns: ColumnBuilder[]): TableBuilder =>
     {
-        this._indexes.push(columnName)
+        this._columns.concat(columns.map(column => column.build()))
+        return this
+    }
+
+    public indexes = (...indexes: string[]): TableBuilder =>
+    {
+        this._indexes.concat(indexes)
         return this
     }
 
     public build = (): string => 
     {
         return [
-            `CREATE TABLE "${ this._tableName }" (`,
+            `CREATE TABLE "${this._schemaName}"."${ this._tableName }" (`,
             this._columns.map(col => '    ' + col).join(',\n'),
             this._indexes.map(col => [
                 '   ',
@@ -44,7 +52,7 @@ class TableBuilder
 }
 
 export const Column = (columnName: string): ColumnBuilder => new ColumnBuilder(columnName)
-class ColumnBuilder
+export class ColumnBuilder
 {
     private _columnName: string
     private _boolean: boolean = false
@@ -191,10 +199,12 @@ class MigrationGenerator
 }
 
 const table = Table('members')
-    .with(Column('id').integer().primaryKey())
-    .with(Column('name').varchar().nullable())
-    .with(Column('surname').varchar())
-    .index('name')
+    .columns(
+        Column('id').integer().primaryKey(),
+        Column('name').varchar().nullable(),
+        Column('surname').varchar()
+    )
+    .indexes('name')
     .build()
     
 export default MigrationGenerator

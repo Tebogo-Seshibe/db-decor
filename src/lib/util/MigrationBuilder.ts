@@ -2,6 +2,7 @@ import { ColumnProperties } from ".."
 import { DateColumnProperties } from "../columns/DateColumn"
 import { FloatingPointColumnProperties, IntegerColumnProperties, NumberColumnProperties } from "../columns/NumberColumn"
 import { StringColumnProperties } from "../columns/StringColumn"
+import { TableBuilder, Table, Column } from "./MigrationGenerator"
 
 type MigrationColumn = 
     StringColumnProperties |
@@ -66,6 +67,13 @@ export class MigrationBuilder
         return this
     }
 
+    public create(tableName: string, columnName: string)
+    {
+        Table(tableName)
+            .with(
+                Column(columnName).integer()
+            )
+    }
     public build(): void
     {
 
