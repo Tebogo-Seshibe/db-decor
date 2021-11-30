@@ -1,4 +1,4 @@
-import { State, TableDetails } from '../util/DatabaseState'
+import { State } from '../util/DatabaseState'
 
 export function Index(name?: string)
 {

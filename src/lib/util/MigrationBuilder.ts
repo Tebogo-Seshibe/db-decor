@@ -1,8 +1,7 @@
-import { ColumnProperties } from ".."
 import { DateColumnProperties } from "../columns/DateColumn"
 import { FloatingPointColumnProperties, IntegerColumnProperties, NumberColumnProperties } from "../columns/NumberColumn"
 import { StringColumnProperties } from "../columns/StringColumn"
-import { TableBuilder, Table, Column } from "./MigrationGenerator"
+import { Column, Table } from "./MigrationGenerator"
 
 type MigrationColumn = 
     StringColumnProperties |
@@ -69,8 +68,10 @@ export class MigrationBuilder
 
     public create(tableName: string, columnName: string)
     {
-        Table(tableName)
-            .with(
+        const table = Table(tableName)
+            .columns(
+                Column(columnName).integer().primaryKey(),
+                Column(columnName).integer(),
                 Column(columnName).integer()
             )
     }

@@ -5,7 +5,7 @@ import { DatabaseState } from '../lib'
 import createTemplate from './templates/create.template'
 import alterTemplate from './templates/alter.template'
 import dropTemplate from './templates/drop.template'
-import { getTimestamp, Settings, setup } from "./util"
+import { getTimestamp, Settings, setup } from './util'
 
 enum MigrationType { CREATE, ALTER, DROP }
 

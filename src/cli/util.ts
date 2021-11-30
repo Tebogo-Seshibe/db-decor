@@ -68,12 +68,29 @@ export function getTimestamp(): [Date, string]
     return [
         today,
         [
-            today.getUTCFullYear(),
-            today.getUTCMonth(),
-            today.getUTCDate(),
-            today.getUTCHours(),
-            today.getUTCMinutes(),
-            today.getUTCSeconds()
+            today.getUTCFullYear().toString(),
+            today.getUTCMonth().toString().padStart(2, '0'),
+            today.getUTCDate().toString().padStart(2, '0'),
+            today.getUTCHours().toString().padStart(2, '0'),
+            today.getUTCMinutes().toString().padStart(2, '0'),
+            today.getUTCSeconds().toString().padStart(2, '0')
         ].join('')
     ]
+}
+
+export function parseTimestamp(date: string): string
+{
+    return [
+        date.substring(0, 4),
+        '-',
+        date.substring(4, 6),
+        '-',
+        date.substring(6, 8),
+        ' ',
+        date.substring(8, 10),
+        ':',
+        date.substring(10, 12),
+        ':',
+        date.substring(12, 14)
+    ].join('')
 }
