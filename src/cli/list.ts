@@ -1,36 +1,52 @@
-import path from 'path'
-import fs from 'fs'
-import { getTimestamp, parseTimestamp, Settings, setup, stateFileName } from "./util"
-import { TableInfo } from '../lib'
 import chalk from 'chalk'
+import fs from 'fs'
+import path from 'path'
+import { parseTimestamp, ready, SNAPSHOT_FILE } from "./util"
 
-export async function list(all: boolean): Promise<void>
-{
-    const [settings, state] = await setup()
+export function list(): void
+{ 
+    const [settings, state, snapshot] = ready()
     const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
-    const statePath = path.resolve(migrationsDir, stateFileName)
+    const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)
     
     const migrations = getMigrations(path.resolve(migrationsDir))
-    
-    console.log('┌───────┬────────────────────────┬──────────────────────┐')
-    console.log('│ ' + chalk.bold('Index') + ' │ ' + chalk.bold('Name') + '                   │ ' + chalk.bold('Timestamp') + '            │')
-    console.log('├───────┼────────────────────────┼──────────────────────┤')
+    let migrationList: string = '\n'
+        + chalk.blue('┌───────┬────────────────────────┬──────────────────────┐\n')
+        + chalk.blue('│ ') 
+        + chalk.bold('Index') 
+        + chalk.blue(' │ ') 
+        + chalk.bold('Name'.padEnd(22)) 
+        + chalk.blue(' │ ') 
+        + chalk.bold('Date'.padEnd(20)) 
+        + chalk.blue(' │\n')
+        + chalk.blue('├───────┼────────────────────────┼──────────────────────┤\n')
+
     migrations.forEach((migration: string, index: number): void =>
     {
         const [ timestamp, name ] = migration.split('_')
+        const colour = index === 0
+            ? chalk.green
+            : chalk.white
         
-        console.log(`│ ${ chalk.white(index.toString().padEnd(5)) } │ ${ chalk.white(name.toString().padEnd(22)) } │ ${ chalk.white(parseTimestamp(timestamp).padEnd(20)) } │`)
+        migrationList += chalk.blue('│ ') 
+            + colour(index.toString().padEnd(5)) 
+            + chalk.blue(' │ ') 
+            + colour(name.toString().padEnd(22)) 
+            + chalk.blue(' │ ') 
+            + colour(parseTimestamp(timestamp).padEnd(20)) 
+            + chalk.blue(' │\n')
     })
-    console.log('└───────┴────────────────────────┴──────────────────────┘')
+
+    migrationList += chalk.blue('└───────┴────────────────────────┴──────────────────────┘\n')
+
+    console.log(migrationList)
+
+    console.log(snapshot)
 }
 
 function getMigrations(migrationDir: string): string[]
-{
-    const directory = fs.readdirSync(migrationDir)
-    const migrations: string[] = []
-    
-    directory.sort().forEach(file => migrations.push(file.substring(0, file.length - 3)))
-
-    return migrations
+{    
+    return fs.readdirSync(migrationDir)
+        .sort()
+        .map(file => file.substring(0, file.length - 3))
 }
-

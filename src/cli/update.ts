@@ -1,15 +1,15 @@
-import path from 'path'
 import fs from 'fs'
-import { getTimestamp, Settings, stateFileName } from "./util"
-import { TableInfo } from '../lib'
+import path from 'path'
+import { getTimestamp, ready, SNAPSHOT_FILE } from "./util"
 
-export function update(settings: Settings, state: Record<string, TableInfo>): void
-export function update(settings: Settings, state: Record<string, TableInfo>, migrationName: string): void
-export function update(settings: Settings, state: Record<string, TableInfo>, migrationIndex: number): void
-export function update(settings: Settings, state: Record<string, TableInfo>, migration?: string | number): void
+export function update(migrationName: string): void
+export function update(migrationIndex: number): void
+export function update(migration?: string | number): void
 {
+    const [settings, state] = ready()
+
     const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
-    const statePath = path.resolve(migrationsDir, stateFileName)
+    const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)
     
     const [date, timestamp] = getTimestamp()    
     

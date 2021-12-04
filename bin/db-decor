@@ -63,8 +63,7 @@ program
 program
     .command('list')
     .description('Prints out a list of all migrations')
-    .option('-a -all', 'Prints all used and unused migrations')
-    .action(({ all }) => list(Boolean(all)))
+    .action(() => list())
 
 program
     .parse()

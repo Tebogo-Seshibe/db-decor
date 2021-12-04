@@ -1,17 +1,12 @@
+import fs from 'fs'
 import mustache from 'mustache'
 import path from 'path'
-import fs from 'fs'
-import { DatabaseState } from '../lib'
 import createTemplate from './templates/create.template'
-import alterTemplate from './templates/alter.template'
-import dropTemplate from './templates/drop.template'
-import { getTimestamp, Settings, setup } from './util'
+import { getTimestamp, ready } from './util'
 
-enum MigrationType { CREATE, ALTER, DROP }
-
-export async function add(migrationName: string): Promise<void>
+export function add(migrationName: string): void
 {
-    const [settings, state] = await setup()
+    const [settings, state, snapshot] = ready()
     const [date, timestamp] = getTimestamp()
     const stampedMigrationName = path.resolve(settings.baseDir, settings.migrations, `${timestamp}_${migrationName}.ts`)
 

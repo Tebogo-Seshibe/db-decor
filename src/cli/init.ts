@@ -1,10 +1,70 @@
 import fs from 'fs'
 import inquirer from 'inquirer'
+import mustache from 'mustache'
 import path from 'path'
+import { QueryField } from '.'
 import '../lib/util/DatabaseState'
 import dbContextTemplate from './templates/dbContext.template'
-import { Settings } from "./util"
-import mustache from 'mustache'
+import { CONFIG_FILE, PACKAGE_JSON, Settings } from "./util"
+
+export async function init()
+{
+    const config = await queryConfig()
+    
+    writeConfig(config)
+    createFolderStructure(modelsDir, migrationsDir)
+    createDatabaseContext(answers.contextName, rootDir)
+    createSnapshot(rootDir)
+}
+
+async function queryConfig(): Promise<QueryField>
+{
+    return await inquirer.prompt<QueryField>(
+    [
+        {
+            type: 'input',
+            name: 'base_directory',
+            message: 'Where are your source files located?',
+            default: './src'
+        },
+        {
+            type: 'input',
+            name: 'build_directory',
+            message: 'Where are your compiled files located?',
+            default: './build'
+        },
+        {
+            type: 'input',
+            name: 'db_name',
+            message: 'Folder where your db code will be located?',
+            default: 'db'
+        },
+        {
+            type: 'input',
+            name: 'context_name',
+            message: 'Name of the db context?',
+            default: 'DBContext'
+        },
+        {
+            type: 'input',
+            name: 'migrations_name',
+            message: 'Folder name where the models will defined?',
+            default: 'models'
+        },
+        {
+            type: 'input',
+            name: 'models_name',
+            message: 'Folder name where the migrations will be generated?',
+            default: 'migrations'
+        },
+        {
+            type: 'list',
+            name: 'config_location',
+            message: 'Where would you like to store these setting?',
+            choices: [ CONFIG_FILE, PACKAGE_JSON ]
+        },
+    ])
+}
 
 function createFolderStructure(modelsDir: string, migrationsDir: string): void
 {
@@ -32,82 +92,18 @@ function createSnapshot(rootDir: string): void
     fs.writeFileSync(path.resolve(rootDir, 'snapshot.json'), JSON.stringify({}))
 }
 
-function writeSettings(settings: Settings, separateConfig: boolean)
+function writeConfig(config: QueryField)
 {
-    
-    if (separateConfig)
+    if (config.config_location === CONFIG_FILE)
     {
-        fs.writeFileSync('dbdecorconfig.json', JSON.stringify(settings))
+        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config))
     }
     else
     {
-        
-        const pakageJSONstr = fs.readFileSync('package.json', { encoding: 'utf-8' })
+        const pakageJSONstr = fs.readFileSync(PACKAGE_JSON, { encoding: 'utf-8' })
         const json = JSON.parse(pakageJSONstr)
-        json['db-decor'] = settings as Settings
+        json['db-decor'] = config
         
-        fs.writeFileSync('package.json', json)
+        fs.writeFileSync(PACKAGE_JSON, json)
     }
-}
-
-export async function init()
-{
-    const answers = await inquirer.prompt(
-    [
-        {
-            type: 'input',
-            name: 'sourceDir',
-            message: 'Where are your source files located?',
-            default: './src/db'
-        },
-        {
-            type: 'input',
-            name: 'buildDir',
-            message: 'Where are your compiled files located?',
-            default: './build/src/db'
-        },
-        {
-            type: 'input',
-            name: 'contextName',
-            message: 'Name of the db context?',
-            default: 'DBContext'
-        },
-        {
-            type: 'input',
-            name: 'modelsDir',
-            message: 'Folder name where the models will defined?',
-            default: 'models'
-        },
-        {
-            type: 'input',
-            name: 'migrationsDir',
-            message: 'Folder name where the migrations will be generated?',
-            default: 'migrations'
-        },
-        {
-            type: 'list',
-            name: 'configLocation',
-            message: 'Where would you like to store these setting?',
-            choices: [ 'dbdecorconfig.json', 'package.json' ]
-        },
-    ])
-    
-    const settings: Settings =
-    {
-        baseDir: answers.sourceDir,
-        buildDir: answers.buildDir,
-        models: answers.modelsDir,
-        migrations: answers.migrationsDir
-    }
-    writeSettings(settings, true)
-
-    const { baseDir, models, migrations } = settings
-    const rootDir = path.resolve(baseDir)
-    const modelsDir = path.resolve(baseDir, models)
-    const migrationsDir = path.resolve(baseDir, migrations)
-    
-    createFolderStructure(modelsDir, migrationsDir)
-    createDatabaseContext(answers.contextName, rootDir)
-    createSnapshot(rootDir)  
-    
 }

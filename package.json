@@ -7,8 +7,7 @@
     "main": "dist/lib/index",
     "bin": {
         "@tseshibe/db-decor": "bin/db-decor",
-        "db-decor": "bin/db-decor",
-        "db-decor init": "bin/init"
+        "db-decor": "bin/db-decor"
     },
     "publishConfig": {
         "access": "public"

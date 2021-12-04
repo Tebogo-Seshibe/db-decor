@@ -1,12 +1,13 @@
-import path from 'path'
 import fs from 'fs'
-import { getTimestamp, Settings, stateFileName } from "./util"
-import { TableInfo } from '../lib'
+import path from 'path'
+import { getTimestamp, ready, SNAPSHOT_FILE } from "./util"
 
-export function remove(settings: Settings, state: Record<string, TableInfo>): void
+export function remove(): void
 {
+    const [settings, state] = ready()
+    
     const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
-    const statePath = path.resolve(migrationsDir, stateFileName)
+    const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)
     
     const [date, timestamp] = getTimestamp()    
     
