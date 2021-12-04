@@ -2,13 +2,13 @@ import fs from 'fs'
 import mustache from 'mustache'
 import path from 'path'
 import createTemplate from './templates/create.template'
-import { getTimestamp, ready } from './util'
+import { getTimestamp, MigrationType, ready } from './util'
 
 export function add(migrationName: string): void
 {
     const [settings, state, snapshot] = ready()
     const [date, timestamp] = getTimestamp()
-    const stampedMigrationName = path.resolve(settings.baseDir, settings.migrations, `${timestamp}_${migrationName}.ts`)
+    const stampedMigrationName = path.resolve(settings.src_migrations, `${timestamp}_${migrationName}.ts`)
 
     // Get current snapshot
     switch (determineMethod())

@@ -1,17 +1,31 @@
-import fs from 'fs'
 import path from 'path'
-import { getTimestamp, ready, SNAPSHOT_FILE } from "./util"
+import { latestMigration, ready, SNAPSHOT_FILE } from "./util"
 
 export function rollback(migrationName: string): void
 export function rollback(migrationIndex:  number): void
 export function rollback(migration?: string | number): void
 {
-    const [settings, state] = ready()
+    const [settings, state, snapshot ] = ready()
 
-    const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
+    const migrationsDir = path.resolve(settings.src_migrations)
     const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)
+
+    // TODO
+    // Find most recently applied migration index
+    // Run all the appropriate down migration function in descending order
+    // Update the snapshot
+    const latest = latestMigration(snapshot);
+    downMigrate(latest);
+    updateSnapshot(snapshot);
+}
+
+
+async function downMigrate(index: number): Promise<void>
+{
     
-    const [date, timestamp] = getTimestamp()    
+}
+
+function updateSnapshot(snapshot: any): void
+{
     
-    fs.writeFileSync(statePath, JSON.stringify(state), { encoding: 'utf-8' })
 }

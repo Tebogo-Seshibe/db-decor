@@ -6,7 +6,7 @@ export function remove(): void
 {
     const [settings, state] = ready()
     
-    const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
+    const migrationsDir = path.resolve(settings.src_migrations)
     const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)
     
     const [date, timestamp] = getTimestamp()    

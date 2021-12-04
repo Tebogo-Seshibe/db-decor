@@ -1,15 +1,15 @@
 import chalk from 'chalk'
 import fs from 'fs'
 import path from 'path'
-import { parseTimestamp, ready, SNAPSHOT_FILE } from "./util"
+import { latestMigration } from '.'
+import { parseTimestamp, ready } from "./util"
 
 export function list(): void
 { 
     const [settings, state, snapshot] = ready()
-    const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
-    const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)
+    const latest = latestMigration(snapshot)
+    const migrations = getMigrations(path.resolve(settings.src_migrations))
     
-    const migrations = getMigrations(path.resolve(migrationsDir))
     let migrationList: string = '\n'
         + chalk.blue('┌───────┬────────────────────────┬──────────────────────┐\n')
         + chalk.blue('│ ') 
@@ -24,7 +24,7 @@ export function list(): void
     migrations.forEach((migration: string, index: number): void =>
     {
         const [ timestamp, name ] = migration.split('_')
-        const colour = index === 0
+        const colour = index === latest
             ? chalk.green
             : chalk.white
         
@@ -38,10 +38,6 @@ export function list(): void
     })
 
     migrationList += chalk.blue('└───────┴────────────────────────┴──────────────────────┘\n')
-
-    console.log(migrationList)
-
-    console.log(snapshot)
 }
 
 function getMigrations(migrationDir: string): string[]

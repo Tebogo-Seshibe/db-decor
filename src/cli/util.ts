@@ -17,6 +17,7 @@ export interface Settings
 {
     base_directory: string
     build_directory: string
+    build_models: string
     src_migrations: string
     src_models: string
 }
@@ -66,9 +67,15 @@ export function ready(): [ Settings, DatabaseState, any ]
     const state = require('../lib').State
     const snapshot = getSnapshot(settings)
 
-    if (fs.existsSync(settings.src_models))
+    console.log(settings.build_models)
+    if (fs.existsSync(settings.build_models))
     {
-        require(settings.src_models)
+        const directory = fs.readdirSync(settings.build_models)
+        
+        for (const file of directory)
+        {
+            require(path.resolve(settings.build_models, file))
+        }
     }
 
     return [ settings, state, snapshot ]
@@ -110,6 +117,7 @@ function getSettings(): Settings
         build_directory: path.resolve(config.build_directory, config.db_name),
         src_migrations: path.resolve(config.base_directory, config.db_name, config.migrations_name),
         src_models: path.resolve(config.base_directory, config.db_name, config.models_name),
+        build_models: path.resolve(config.build_directory, config.db_name, config.models_name),
     }
 }
 
@@ -145,4 +153,9 @@ export function parseTimestamp(date: string): string
         ':',
         date.substring(12, 14)
     ].join('')
+}
+
+export function latestMigration(snapshot: any): number
+{
+    return -1
 }

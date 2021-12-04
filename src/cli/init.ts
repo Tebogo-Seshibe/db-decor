@@ -5,16 +5,19 @@ import path from 'path'
 import { QueryField } from '.'
 import '../lib/util/DatabaseState'
 import dbContextTemplate from './templates/dbContext.template'
-import { CONFIG_FILE, PACKAGE_JSON, Settings } from "./util"
+import { CONFIG_FILE, PACKAGE_JSON, ready } from "./util"
 
 export async function init()
 {
     const config = await queryConfig()
     
     writeConfig(config)
-    createFolderStructure(modelsDir, migrationsDir)
-    createDatabaseContext(answers.contextName, rootDir)
-    createSnapshot(rootDir)
+    
+    const [ settings, ,  ] = ready()
+
+    createFolderStructure(settings.src_models, settings.src_migrations)
+    createDatabaseContext(config.context_name, settings.base_directory)
+    createSnapshot(settings.base_directory)
 }
 
 async function queryConfig(): Promise<QueryField>
@@ -49,13 +52,13 @@ async function queryConfig(): Promise<QueryField>
             type: 'input',
             name: 'migrations_name',
             message: 'Folder name where the models will defined?',
-            default: 'models'
+            default: 'migrations'
         },
         {
             type: 'input',
             name: 'models_name',
             message: 'Folder name where the migrations will be generated?',
-            default: 'migrations'
+            default: 'models'
         },
         {
             type: 'list',

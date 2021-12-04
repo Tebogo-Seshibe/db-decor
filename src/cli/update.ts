@@ -8,10 +8,8 @@ export function update(migration?: string | number): void
 {
     const [settings, state] = ready()
 
-    const migrationsDir = path.resolve(settings.baseDir, settings.migrations)
-    const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)
-    
-    const [date, timestamp] = getTimestamp()    
+    const migrationsDir = path.resolve(settings.src_migrations)
+    const statePath = path.resolve(migrationsDir, SNAPSHOT_FILE)  
     
     fs.writeFileSync(statePath, JSON.stringify(state), { encoding: 'utf-8' })
 }
