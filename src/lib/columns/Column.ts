@@ -1,8 +1,9 @@
-import { State, ColumnDetails, ColumnProperties, ColumnType } from '../util/DatabaseState'
+import { ColumnDetails, State } from '../util/DatabaseState'
+import { ColumnProperties, ColumnType } from './columnType'
 
-export function Column(columnType: ColumnType, properties: ColumnProperties, columnName?: string)
+export function Column(columnType: ColumnType, properties: ColumnProperties, columnName?: string): PropertyDecorator
 {
-    return function (target: Object, key: string | symbol)
+    return function (target: Object, key: string | symbol): void
     {        
         const className = target.constructor.name
         const fieldName = key as string
@@ -10,12 +11,12 @@ export function Column(columnType: ColumnType, properties: ColumnProperties, col
         const tableInfo = State[className] ?? { }
         if (!tableInfo.columns)
         {
-            tableInfo.columns = { }
+            tableInfo.columns = new Map()
         }
 
-        if (tableInfo.columns[fieldName])
+        if (tableInfo.columns.has(fieldName))
         {
-            throw `Duplicate column found\nClass name: ${className}\nField name: ${fieldName} `            
+            throw new Error(`Duplicate column found\nClass name: ${className}\nField name: ${fieldName}`)
         }
 
         const columnDetails: ColumnDetails =
@@ -26,7 +27,7 @@ export function Column(columnType: ColumnType, properties: ColumnProperties, col
             properties: properties
         }
 
-        tableInfo.columns[fieldName] = columnDetails
+        tableInfo.columns.set(fieldName, columnDetails)
         State[className] = tableInfo
     }
 }

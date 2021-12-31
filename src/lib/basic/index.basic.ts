@@ -1,8 +1,8 @@
 import { State } from '../util/DatabaseState'
 
-export function Index(name?: string)
+export function Index(name?: string): PropertyDecorator
 {
-    return function (target: Object, key: string | symbol)
+    return function (target: Object, key: string | symbol): void
     {
         const className = target.constructor.name
         const indexName = name

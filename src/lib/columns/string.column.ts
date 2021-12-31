@@ -1,5 +1,5 @@
-import { ColumnProperties } from '../util/DatabaseState'
-import { Column } from './Column'
+import { ColumnProperties } from './columnType'
+import { Column } from './column'
 
 export interface StringColumnProperties extends ColumnProperties
 {
@@ -7,11 +7,11 @@ export interface StringColumnProperties extends ColumnProperties
     length?: number
 }
 
-export function StringColumn(): PropertyDecorator
-export function StringColumn(name: string): PropertyDecorator
-export function StringColumn(props: StringColumnProperties): PropertyDecorator
-export function StringColumn(name: string, props?: StringColumnProperties): PropertyDecorator
-export function StringColumn(arg1?: string | StringColumnProperties, arg2?: StringColumnProperties): PropertyDecorator
+export function String(): PropertyDecorator
+export function String(name: string): PropertyDecorator
+export function String(props: StringColumnProperties): PropertyDecorator
+export function String(name: string, props?: StringColumnProperties): PropertyDecorator
+export function String(arg1?: string | StringColumnProperties, arg2?: StringColumnProperties): PropertyDecorator
 {
     let columnName: string | undefined
     let properties: StringColumnProperties =
@@ -26,7 +26,8 @@ export function StringColumn(arg1?: string | StringColumnProperties, arg2?: Stri
     }
     else if (arg1 !== undefined)
     {
-        properties = {
+        properties =
+        {
             ...properties,
             ...arg1,
         }
@@ -34,7 +35,8 @@ export function StringColumn(arg1?: string | StringColumnProperties, arg2?: Stri
 
     if (arg2 !== undefined)
     {
-        properties = {
+        properties =
+        {
             ...properties,
             ...arg2,
         }

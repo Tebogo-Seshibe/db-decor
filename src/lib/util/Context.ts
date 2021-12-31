@@ -1,5 +1,9 @@
-import { Client } from "pg"
-import { QueryBuilder } from "./QueryBuilder"
+import mssql from 'mssql'
+import pg from "pg"
+import { PostgreSQLTranslator } from "../query/PostgreSQLTranslator"
+import { IQueryTranslator } from '../query/QueryTranslator'
+import { QueryBuilder } from "../query/QueryBuilder"
+import { State } from './DatabaseState'
 
 export interface IContext
 {
@@ -11,42 +15,92 @@ export interface IContext
     password: string
 }
 
+export enum DatabaseType
+{
+    MSSQL,
+    PGSQL
+}
+
+export type Class<T> = { new (...args: any[]): T }
+
 export class Context
 {
     private _migrationId: number = -1
     private _connectionString: string = ''
-    private _client?: Client
 
+    private _queryTranslator?: IQueryTranslator
+    private _mssql?: mssql.ConnectionPool
+    private _pg?: pg.Client
+    
     private migrationDirectory: string = ''
     private contextDirectory: string = ''
 
-    constructor()
-    constructor(connectionString: string)
-    constructor(connectionDetails: IContext)
-    constructor(arg?: string | IContext)
+    constructor(
+        private _databaseType: DatabaseType,
+        connectionDetails: IContext
+    ) {
+            this.createClient(connectionDetails)
+    }
+
+    private async createClient(connectionDetails: IContext): Promise<void>
     {
         try
         {
-            if (typeof arg === 'string')
+            switch (this._databaseType)
             {
-                this._connectionString = arg
+                case DatabaseType.MSSQL:
+                    this._mssql = await mssql.connect(
+                    {
+                        server: connectionDetails.host,
+                        database: connectionDetails.db,
+                        user: connectionDetails.username,
+                        password: connectionDetails.password
+                    })
+                    this._queryTranslator = new PostgreSQLTranslator()
+                    break
+
+                case DatabaseType.PGSQL:
+                    this._pg = new pg.Client(
+                    {
+                        host: connectionDetails.host,
+                        database: connectionDetails.db,
+                        user: connectionDetails.username,
+                        password: connectionDetails.password
+                    })
+                    this._queryTranslator = new PostgreSQLTranslator()
+                    break
             }
-            else if(arg !== undefined)
-            {
-                this._connectionString = `postgresql://${arg.username}:${arg.password}@${arg.host}:${arg.port}/${arg.db}${arg.ssl ? '?sslmode=require' : ''}`
-            }
-            // this._client = new Client(this._connectionString)
         }
         catch (e)
         {
-            // console.error(e)
-            // throw e
+            console.error(e)
+            throw e
         }
     }
 
-    public query<T>(): QueryBuilder<T>
+    public async querys<T>(): Promise<any> //QueryBuilder<T>
     {
-        return new QueryBuilder<T>()
+        try
+        {
+            switch (this._databaseType)
+            {
+                case DatabaseType.MSSQL:
+                    break
+
+                case DatabaseType.PGSQL:
+                    this._pg!.connect()
+
+                    const select = this._queryTranslator!.select('dbo', 'students', { name: 'name', alias: 'Name' })
+                    const { rows } = await this._pg!.query(select)
+
+                    this._pg!.end()
+                    return rows
+            }
+        }
+        catch (e)
+        {
+            console.log(e)   
+        }
     }
 
     public migrate(): void
@@ -55,5 +109,10 @@ export class Context
     public migrate(arg?: number | string): void
     {
 
+    }
+
+    public query<T>(type: Class<T>): QueryBuilder<T>
+    {
+        return new QueryBuilder<T>(type, this._pg!, this._queryTranslator!)
     }
 }

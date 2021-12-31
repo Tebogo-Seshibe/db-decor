@@ -1,16 +1,23 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "ES5",
         "declaration": true,
         "module": "commonjs",
         "esModuleInterop": true,
         "noImplicitAny": true,
         "experimentalDecorators": true,
         "strict": true,
-        "outDir": "dist"
+        "outDir": "./dist",
+        "allowJs": false,
+        "watch": true
     },
     "compileOnSave": true,
     "include": [
-        "./src/"
+        "./src/cli",
+        "./src/lib"
+    ],
+    "exclude": [
+        "./node_modules",
+        "./dist"
     ]
 }

@@ -1,19 +1,20 @@
 import { State, TableDetails } from '../util/DatabaseState'
 
-export function PrimaryKey()
+export function PrimaryKey(): PropertyDecorator
 {
-    return function(target: Object, key: string | symbol)
+    return function (target: Object, key: string | symbol): void
     {
         const className = target.constructor.name
         const fieldName = key as string
         
-        let tableInfo = State[className] ?? { }
+        const tableInfo = State[className] ?? { }
         if (!tableInfo.table)
         {
             tableInfo.table = { }
         }
 
-        let tableDetails: TableDetails = {
+        const tableDetails: TableDetails =
+        {
             ...tableInfo.table, 
             primaryKey: fieldName
         }

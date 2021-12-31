@@ -1,6 +1,5 @@
-import { DateColumnProperties } from "../columns/DateColumn"
-import { FloatingPointColumnProperties, IntegerColumnProperties, NumberColumnProperties } from "../columns/NumberColumn"
-import { StringColumnProperties } from "../columns/StringColumn"
+import { DateColumnProperties, IntegerColumnProperties, FloatingPointColumnProperties, NumberColumnProperties } from "../columns/columnType"
+import { StringColumnProperties } from "../columns/string.column"
 import { Column, Table } from "./MigrationGenerator"
 
 type MigrationColumn = 

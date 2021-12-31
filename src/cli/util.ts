@@ -22,7 +22,7 @@ export interface Settings
     src_models: string
 }
 
-export interface QueryField
+export interface QueryFields
 {
     base_directory: string
     build_directory: string
@@ -98,18 +98,18 @@ function getSnapshot(settings: Settings): any
 
 function getSettings(): Settings
 {
-    let config: QueryField
+    let config: QueryFields
 
     if (fs.existsSync(CONFIG_FILE))
     {
         const str = fs.readFileSync(CONFIG_FILE, { encoding: 'utf-8' })
-        config = JSON.parse(str) as QueryField
+        config = JSON.parse(str) as QueryFields
     }
     else
     {
         const str = fs.readFileSync(PACKAGE_JSON, { encoding: 'utf-8' })
         const packagae_json = JSON.parse(str)
-        config = packagae_json['db-decor'] as QueryField
+        config = packagae_json['db-decor'] as QueryFields
     }
 
     return {

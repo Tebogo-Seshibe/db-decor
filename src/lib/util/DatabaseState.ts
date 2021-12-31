@@ -1,27 +1,24 @@
+import { ColumnProperties, ColumnType } from '../columns/columnType'
+
 export type NameCasing = 'pascal' | 'camel' | 'snake' | 'kebab'
 
 export interface TableProperties
 {
     name?: string
 }
+
+export interface ReferenceDetails
+{
+    field?: string
+    table?: string
+    name?: string
+}
+
 export interface TableDetails extends TableProperties
 {
     primaryKey?: string
-    foreignKeys?: {
-        field: string,
-        table: string
-    }[],
-    indexes?: {
-        field: string,
-        name: string
-    }[]
-}
-
-export type ColumnType = 'number' | 'string' | 'date'
-
-export interface ColumnProperties
-{
-    nullable?: boolean
+    foreignKeys?: ReferenceDetails[],
+    indexes?: ReferenceDetails[]
 }
 
 export interface ColumnDetails
@@ -35,7 +32,7 @@ export interface ColumnDetails
 export interface TableInfo
 {
     table: TableDetails
-    columns: Record<string, ColumnDetails>
+    columns: Map<string, ColumnDetails>
 }
 
 export type DatabaseState = Record<string, TableInfo>

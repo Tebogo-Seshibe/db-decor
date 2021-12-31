@@ -2,9 +2,9 @@ import fs from 'fs'
 import inquirer from 'inquirer'
 import mustache from 'mustache'
 import path from 'path'
-import { QueryField } from '.'
+import { QueryFields } from '.'
 import '../lib/util/DatabaseState'
-import dbContextTemplate from './templates/dbContext.template'
+import dbContextTemplate from './template/dbContext.template'
 import { CONFIG_FILE, PACKAGE_JSON, ready } from "./util"
 
 export async function init()
@@ -20,9 +20,9 @@ export async function init()
     createSnapshot(settings.base_directory)
 }
 
-async function queryConfig(): Promise<QueryField>
+async function queryConfig(): Promise<QueryFields>
 {
-    return await inquirer.prompt<QueryField>(
+    return await inquirer.prompt<QueryFields>(
     [
         {
             type: 'input',
@@ -95,11 +95,11 @@ function createSnapshot(rootDir: string): void
     fs.writeFileSync(path.resolve(rootDir, 'snapshot.json'), JSON.stringify({}))
 }
 
-function writeConfig(config: QueryField)
+function writeConfig(config: QueryFields)
 {
     if (config.config_location === CONFIG_FILE)
     {
-        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config))
+        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, '\t'))
     }
     else
     {
@@ -107,6 +107,6 @@ function writeConfig(config: QueryField)
         const json = JSON.parse(pakageJSONstr)
         json['db-decor'] = config
         
-        fs.writeFileSync(PACKAGE_JSON, json)
+        fs.writeFileSync(PACKAGE_JSON, JSON.stringify(json, null, '\t'))
     }
 }

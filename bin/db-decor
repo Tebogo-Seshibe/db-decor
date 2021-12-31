@@ -1,69 +1,69 @@
 #!/usr/bin/env node
 
 const { program } = require('commander')
-const { 
-    init,
-    add,
-    remove,
-    update,
-    rollback,
-    list,
+const {
+  init,
+  add,
+  remove,
+  update,
+  rollback,
+  list,
 } = require('../dist/cli')
 
 program
-    .version('0.0.1')
+  .version('0.0.1')
     
 program
-    .command('init')
-    .description('Initialize the projects with and create the structure')
-    .action(() => init())
+  .command('init')
+  .description('Initialize the projects with and create the structure')
+  .action(() => init())
     
 program
-    .command('add <migration-name>')
-    .description('Creates a new migration', {
-        name: 'The name of the migration'
-    })
-    .action(name => add(name))
+  .command('add <migration-name>')
+  .description('Creates a new migration', {
+      migrationName: 'The name of the migration'
+  })
+  .action(migrationName => add(migrationName))
 
 program
-    .command('remove')
-    .description('Removes all unused migrations')
-    .action(() => remove())
+  .command('remove')
+  .description('Removes all unused migrations')
+  .action(() => remove())
     
 program
-    .command('update')
-    .option('-n --name', 'Name of the migration')
-    .option('-i --index', 'Index of the migration')
-    .description('Update the database to the newest, or provided migration')
-    .action(({ name, index }) => {
-        var migration = name 
-            ? name
-            : Number(index) !== NaN
-                ? Number(index)
-                : void 0
-                
-        update(migration)
-    })
+  .command('update')
+  .option('-n --name', 'Name of the migration')
+  .option('-i --index', 'Index of the migration')
+  .description('Update the database to the newest, or provided migration')
+  .action(({ name, index }) => {
+    const migration = name
+      ? name
+      : Number(index) !== NaN
+        ? Number(index)
+        : void 0
+              
+    update(migration)
+  })
     
 program
-    .command('rollback')
-    .description('Rollbacks the database to previous, or the provided migration')
-    .option('-n --name <migration-name>', 'Name of the migration')
-    .option('-i --index <migration-index>', 'Index of the migration')
-    .action(({ name, index }) => {
-        var migration = name 
-            ? name
-            : Number(index) !== NaN
-                ? Number(index)
-                : void 0
-                
-        rollback(settings, State, migration)
-    })
+  .command('rollback')
+  .description('Rollbacks the database to previous, or the provided migration')
+  .option('-n --name <migration-name>', 'Name of the migration')
+  .option('-i --index <migration-index>', 'Index of the migration')
+  .action(({ name, index }) => {
+    var migration = name
+      ? name
+      : Number(index) !== NaN
+        ? Number(index)
+        : void 0
+            
+    rollback(settings, State, migration)
+  })
 
 program
-    .command('list')
-    .description('Prints out a list of all migrations')
-    .action(() => list())
+  .command('list')
+  .description('Prints out a list of all migrations')
+  .action(() => list())
 
 program
-    .parse()
+  .parse()
