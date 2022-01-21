@@ -16,6 +16,7 @@ export interface ReferenceDetails
 
 export interface TableDetails extends TableProperties
 {
+    schema?: string
     primaryKey?: string
     foreignKeys?: ReferenceDetails[],
     indexes?: ReferenceDetails[]

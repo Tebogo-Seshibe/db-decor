@@ -21,7 +21,7 @@ export class QueryBuilder<T>
     protected query: Query = new Query()
 
     constructor(
-        private type: Class<T>,
+        protected type: Class<T>,
         protected client: mssql.ConnectionPool | pg.Client,
         protected translator: IQueryTranslator
     ) { }
@@ -37,14 +37,27 @@ export class QueryBuilder<T>
         return this
     }
     
-    public select<InKey extends keyof T>(field: InKey, ...more: InKey[]): QueryBuilder<Pick<T, InKey>>
-    public select<InKey extends keyof T, OutKey extends string>(fields: Record<OutKey, InKey>): QueryBuilder<Record<OutKey, Pick<T, InKey>>>
-    public select<InKey extends keyof T, OutKey extends string>(arg: InKey | Record<OutKey, InKey>, ...args: InKey[]): QueryBuilder<Pick<T, InKey> | Record<OutKey, Pick<T, InKey>>>
+    public select<U = T>(): QueryBuilder<T>
+    public select<U = T>(...fields: (keyof U)[]): QueryBuilder<T>
+    public select<OutKey extends string, U = T>(fields: any): QueryBuilder<T>
+    public select<OutKey extends string, U = T>(arg?: (keyof U) | any, ...args: (keyof U)[]): QueryBuilder<T>
     {
-        const fields = (typeof arg === 'string')
-            ? [arg, ...args].map(name => ({ name } as Select))
-            : Object.keys(arg).map(alias => ({ name: (arg as Record<OutKey, InKey>)[alias as OutKey], alias } as Select))
-            
+        let fields: Select[] = []
+        
+        if (!arg)
+        {
+            fields = this.columns(this.type)
+        }
+        else if (typeof arg === 'string')
+        {
+            fields = [arg, ...args].map(name => this.column(this.type, name as string))            
+        }
+        else
+        {
+            const query = arg as any
+            fields = Object.keys(arg).map(key => this.column(this.type, key as string, query[key as (keyof U)]))
+        }
+
         if (!this.query.current)
         {
             this.query.current = new SelectQueryNode(
@@ -52,7 +65,7 @@ export class QueryBuilder<T>
                 this.table(this.type),
                 undefined,
                 undefined,
-                fields.map(({ name, alias }) => ({ name: this.column(this.type, name), alias }))
+                fields
             )
             this.query.root = this.query.current
         }
@@ -68,12 +81,11 @@ export class QueryBuilder<T>
                 this.table(this.type),
                 this.query.current,
                 undefined,
-                fields.map(({ name, alias }) => ({ name: this.column(this.type, name), alias }))
+                fields
             )
             this.query.current = this.query.current.next
         }
 
-        console.log(this.query.current)
         return this
     }
 
@@ -160,7 +172,34 @@ export class QueryBuilder<T>
     //#region Query Execution
     public async count(): Promise<number>
     {
-        return 0
+        let compiledQuery = this.buildQuery()
+
+        if (this.client instanceof mssql.ConnectionPool)
+        {
+            try
+            {
+                this.client.connect()
+                const { recordset } = await this.client.query(compiledQuery)
+                return recordset.length
+            }
+            finally
+            {
+                this.client.close()
+            }
+        }
+        else
+        {
+            try
+            {
+                this.client.connect()
+                const { rowCount } = await this.client.query(compiledQuery)
+                return rowCount
+            }
+            finally
+            {
+                this.client.end()
+            }
+        }
     }
 
     public async any(): Promise<boolean>
@@ -178,22 +217,22 @@ export class QueryBuilder<T>
 
     }
 
-    public async list<T extends any>(): Promise<T>
+    public async list<T extends any>(): Promise<Array<T>>
     {
-        let node = this.query.root
-        let compiledQuery = ''
-
-        while (node)
-        {
-            compiledQuery += node.build(this.translator)
-            node = node.next
-        }
+        let compiledQuery = this.buildQuery()
 
         if (this.client instanceof mssql.ConnectionPool)
         {
+            try
+            {
                 this.client.connect()
                 const { output } = await this.client.query(compiledQuery)
-                return output as T
+                return output as Array<T>
+            }
+            finally
+            {
+                this.client.close()
+            }
         }
         else
         {
@@ -201,26 +240,35 @@ export class QueryBuilder<T>
             {
                 this.client.connect()
                 const { rows } = await this.client.query(compiledQuery)
-                return rows as T
-            }
-            catch(e)
-            {
-                console.log(e)   
+                return rows as Array<T>
             }
             finally
             {
                 this.client.end()
             }
-
-            return null as T
         }
     }
+
+    private buildQuery(): string
+    {
+        let node = this.query.root
+        let compiledQuery: string = ''
+
+        while (node)
+        {
+            compiledQuery += node.build(this.translator)
+            node = node.next
+        }
+
+        return compiledQuery + ';'
+    }
+
     //#endregion
 
     //#region Helpers
-    private schema(_: Class<any>): string
+    private schema(type: Class<any>): string
     {
-        return 'dbo'
+        return State[type.name].table.schema!
     }
 
     private table(type: Class<any>): string
@@ -228,10 +276,30 @@ export class QueryBuilder<T>
         return State[type.name].table.name!
     }
 
-    private column(type: Class<any>, field: string): string
+    private column(type: Class<any>, fieldName: string, alias?: string): Select
     {
-        console.log(field, State[type.name].columns.get(field)!.columnName)
-        return State[type.name].columns.get(field)!.columnName
+        const { columnName, field } = State[type.name].columns.get(fieldName)!
+
+        return { 
+            name: columnName,
+            alias: alias ?? field
+        }
+    }
+
+    private columns(type: Class<any>): Select[]
+    {
+        const columns: Select[] = []
+        
+        State[type.name].columns.forEach(({ columnName, field }) =>
+        {
+            columns.push(
+            { 
+                name: columnName,
+                alias: field
+            })
+        })
+        
+        return columns
     }
     //#endregion
 }

@@ -1,7 +1,23 @@
-import { Delete, IQueryTranslator, Select, Update } from "./QueryTranslator"
+import { Delete, Entity, Entry, Header, IQueryTranslator, Select, Update } from "./QueryTranslator"
 
 export class PostgreSQLTranslator implements IQueryTranslator
 {
+    find(schema: string, table: string, ...entries: Entry[]): string {
+        throw new Error("Method not implemented.")
+    }
+    remove(schema: string, table: string, ...entries: Entry[]): string {
+        throw new Error("Method not implemented.")
+    }
+    update(schema: string, table: string, ...columns: Update[]): string {
+        throw new Error("Method not implemented.")
+    }
+    
+    or(schema: string, table: string): string {
+        throw new Error("Method not implemented.")
+    }
+    and(schema: string, table: string): string {
+        throw new Error("Method not implemented.")
+    }
     where(schema: string, table: string): string {
         throw new Error("Method not implemented.")
     }
@@ -49,16 +65,22 @@ export class PostgreSQLTranslator implements IQueryTranslator
     public select(schema: string, table: string, ...columns: Select[]): string
     {
         return [
-            'SELECT ',
+            'SELECT',
                 columns.map(c => `    "${ schema }"."${ table }"."${ c.name }" AS "${ c.alias ?? c.name }"`).join(',\n'),
             `FROM "${ schema }"."${ table }"`
         ].join('\n')
     }
 
-    public update(schema: string, table: string, ...columns: Update[]): string
+    public add(schema: string, table: string, headers: Header[], ...values: Entity[]): string
     {
-        return ''
+        return [
+            `INSERT INTO "${ schema }"."${ table }"`,
+            `    (${ headers.map(x => `"${ x.name }"`).join(', ') })`,
+            `VALUES`,
+            values.map(value => '    (' + headers.map(header => `'${ value[header.name] }'::${ header.type }`).join(', ') + ')').join(',\n')
+        ].join('\n')
     }
+
 
     public delete(schema: string, table: string, ...columns: Delete[]): string
     {

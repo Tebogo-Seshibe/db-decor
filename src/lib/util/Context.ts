@@ -35,11 +35,21 @@ export class Context
     private migrationDirectory: string = ''
     private contextDirectory: string = ''
 
+    public get client(): pg.Client | undefined
+    {
+        return this._pg
+    }
+
+    public get queryTranslator(): IQueryTranslator
+    {
+        return this._queryTranslator!
+    }
+
     constructor(
         private _databaseType: DatabaseType,
         connectionDetails: IContext
     ) {
-            this.createClient(connectionDetails)
+        this.createClient(connectionDetails)
     }
 
     private async createClient(connectionDetails: IContext): Promise<void>
@@ -78,31 +88,6 @@ export class Context
         }
     }
 
-    public async querys<T>(): Promise<any> //QueryBuilder<T>
-    {
-        try
-        {
-            switch (this._databaseType)
-            {
-                case DatabaseType.MSSQL:
-                    break
-
-                case DatabaseType.PGSQL:
-                    this._pg!.connect()
-
-                    const select = this._queryTranslator!.select('dbo', 'students', { name: 'name', alias: 'Name' })
-                    const { rows } = await this._pg!.query(select)
-
-                    this._pg!.end()
-                    return rows
-            }
-        }
-        catch (e)
-        {
-            console.log(e)   
-        }
-    }
-
     public migrate(): void
     public migrate(index: number): void
     public migrate(name: string): void
@@ -113,6 +98,7 @@ export class Context
 
     public query<T>(type: Class<T>): QueryBuilder<T>
     {
+        console.log(State)
         return new QueryBuilder<T>(type, this._pg!, this._queryTranslator!)
     }
 }
