@@ -51,7 +51,7 @@ program
   .option('-n --name <migration-name>', 'Name of the migration')
   .option('-i --index <migration-index>', 'Index of the migration')
   .action(({ name, index }) => {
-    var migration = name
+    const migration = name
       ? name
       : Number(index) !== NaN
         ? Number(index)

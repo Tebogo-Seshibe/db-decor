@@ -3,7 +3,7 @@ import { ColumnProperties, ColumnType } from './columnType'
 
 export function ColumnField(columnType: ColumnType, properties: ColumnProperties, columnName?: string): ParameterDecorator
 {
-    return function (target: Object, propertyKey: string | symbol, parameterIndex: number): void
+    return function (target: Object, propertyKey: string | symbol | undefined, parameterIndex: number): void
     {
         const className = target.constructor.name
         const fieldName = propertyKey as string

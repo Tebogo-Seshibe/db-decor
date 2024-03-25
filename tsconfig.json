@@ -8,8 +8,7 @@
         "experimentalDecorators": true,
         "strict": true,
         "outDir": "./dist",
-        "allowJs": false,
-        "watch": true
+        "allowJs": false
     },
     "compileOnSave": true,
     "include": [
